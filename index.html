@@ -6,685 +6,439 @@
   <title>Kidney Patient QoL Estimator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    .hidden {
-      display: none;
-    }
-    /* Styling for custom radio buttons used in PHQ-9 */
-    .phq-radio-input:checked + .phq-radio-label {
-      background-color: #3b82f6; /* bg-blue-500 */
-      border-color: #2563eb; /* border-blue-600 */
-    }
-    .phq-radio-input:checked + .phq-radio-label::after {
-      opacity: 1;
-    }
-    .phq-radio-label::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: white;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    }
-    /* Slider thumb styles */
-    .slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      background: #3b82f6; /* bg-blue-500 */
-      cursor: pointer;
-      border-radius: 50%;
-      margin-top: -8px; /* Adjust to center thumb on track */
-    }
-    .slider::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      background: #3b82f6; /* bg-blue-500 */
-      cursor: pointer;
-      border-radius: 50%;
-      border: none;
-    }
-    /* Tooltip styles */
-    .tooltip-container {
-      position: relative;
-      display: inline-block;
-    }
-    .tooltip-icon {
-      cursor: help;
-    }
-    .tooltip-text {
-      visibility: hidden;
-      width: max-content;
-      max-width: 250px; /* Adjust as needed */
-      background-color: #2d3748; /* gray-800 */
-      color: #fff;
-      text-align: center;
-      border-radius: 0.375rem; /* rounded-md */
-      padding: 0.5rem; /* p-2 */
-      position: absolute;
-      z-index: 10;
-      bottom: 125%; /* Position above the icon */
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      white-space: normal;
-      font-size: 0.75rem; /* text-xs */
-    }
-    .tooltip-container:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
-    /* Active tab style */
-    .tab-button.active {
-      border-bottom-color: #3b82f6; /* blue-500 */
-      color: #2563eb; /* blue-600 */
-      font-weight: 500;
-    }
-    .simulation-highlight {
-        background-color: #e0f2fe; /* light blue bg-sky-100 */
-        border: 1px solid #7dd3fc; /* sky-300 */
-        padding: 0.75rem;
-        border-radius: 0.375rem;
-        margin-top: 0.5rem;
-    }
-    .conditional-input {
-        transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-    }
-    .conditional-input.visible {
-        opacity: 1;
-        max-height: 500px; /* Adjust as needed for content */
-    }
-    .severity-none-bg { background-color: #f3f4f6; } /* bg-gray-100 */
-    .severity-mild-bg { background-color: #f0fdf4; } /* bg-green-50 */
-    .severity-moderate-bg { background-color: #fefce8; } /* bg-yellow-50 */
-    .severity-severe-bg { background-color: #fff7ed; } /* bg-orange-50 */
-
-    .severity-none-text { color: #4b5563; } /* text-gray-600 */
-    .severity-mild-text { color: #16a34a; } /* text-green-600 */
-    .severity-moderate-text { color: #ca8a04; } /* text-yellow-600 */
-    .severity-severe-text { color: #ea580c; } /* text-orange-600 */
-    
-    .critical-alert {
-        background-color: #fee2e2; /* bg-red-100 */
-        border-left-width: 4px;
-        border-color: #ef4444; /* border-red-500 */
-        color: #b91c1c; /* text-red-700 */
-        padding: 1rem;
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 0.25rem;
-    }
+    body { font-family: 'Inter', sans-serif; }
+    .hidden { display: none; }
+    .phq-radio-input:checked + .phq-radio-label { background-color: #3b82f6; border-color: #2563eb; }
+    .phq-radio-input:checked + .phq-radio-label::after { opacity: 1; }
+    .phq-radio-label::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background-color: white; opacity: 0; transition: opacity 0.2s ease-in-out; }
+    .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #3b82f6; cursor: pointer; border-radius: 50%; margin-top: -8px; }
+    .slider::-moz-range-thumb { width: 20px; height: 20px; background: #3b82f6; cursor: pointer; border-radius: 50%; border: none; }
+    .tooltip-container { position: relative; display: inline-block; }
+    .tooltip-icon { cursor: help; }
+    .tooltip-text { visibility: hidden; width: max-content; max-width: 250px; background-color: #2d3748; color: #fff; text-align: center; border-radius: 0.375rem; padding: 0.5rem; position: absolute; z-index: 10; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; white-space: normal; font-size: 0.75rem; }
+    .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tab-button.active { border-bottom-color: #3b82f6; color: #2563eb; font-weight: 500; }
+    .simulation-highlight { background-color: #e0f2fe; border: 1px solid #7dd3fc; padding: 0.75rem; border-radius: 0.375rem; margin-top: 0.5rem; }
+    .conditional-input { transition: opacity 0.3s ease-out, max-height 0.3s ease-out; opacity: 0; max-height: 0; overflow: hidden; }
+    .conditional-input.visible { opacity: 1; max-height: 500px; }
+    .severity-none-bg { background-color: #f3f4f6; } .severity-mild-bg { background-color: #f0fdf4; } .severity-moderate-bg { background-color: #fefce8; } .severity-severe-bg { background-color: #fff7ed; }
+    .severity-none-text { color: #4b5563; } .severity-mild-text { color: #16a34a; } .severity-moderate-text { color: #ca8a04; } .severity-severe-text { color: #ea580c; }
+    .critical-alert { background-color: #fee2e2; border-left-width: 4px; border-color: #ef4444; color: #b91c1c; padding: 1rem; margin-top: 1rem; margin-bottom: 1rem; border-radius: 0.25rem; }
   </style>
 </head>
 <body class="bg-slate-100">
   <div class="min-h-screen flex flex-col items-center py-8 px-4">
     <div class="w-full max-w-4xl bg-white shadow-xl rounded-lg">
-      <header class="bg-blue-600 text-white p-6 rounded-t-lg">
-        <h1 id="app-title" class="text-3xl font-bold text-center">Kidney Patient QoL Estimator</h1>
+      <header class="bg-blue-600 text-white p-6 rounded-t-lg flex justify-between items-center">
+        <h1 id="app-title" data-translate="appTitle" class="text-2xl sm:text-3xl font-bold text-center flex-grow"></h1>
+        <div class="relative">
+          <select id="language-switcher" class="bg-blue-700 text-white border border-blue-500 rounded-md py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </div>
       </header>
 
       <main class="p-2 sm:p-6">
         <!-- Disclaimer (shown on steps 1-3) -->
         <div id="disclaimer-section" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded">
           <div class="flex">
-            <div class="flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-yellow-500">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <p class="text-sm text-yellow-700">
-                <strong class="font-semibold">Important Disclaimer:</strong> This tool is for educational purposes only and not a substitute for professional medical advice. All estimations are based on general research data and individual experiences will vary. Always discuss your symptoms, feelings, and treatment options with your healthcare team.
-              </p>
-            </div>
+            <div class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-yellow-500"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></div>
+            <div class="ml-3"><p class="text-sm text-yellow-700"><strong class="font-semibold" data-translate="disclaimerTitle"></strong> <span data-translate="disclaimerText"></span></p></div>
           </div>
         </div>
 
         <!-- Progress Tracker -->
         <div id="progress-tracker-section" class="px-2 sm:px-6 pb-4">
           <div class="flex items-center justify-between mb-2">
-            <!-- Step indicators will be dynamically updated -->
-            <div id="step-indicator-1" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300">1</div>
-            <div class="h-1 bg-gray-200 flex-grow self-center mx-2 relative"><div id="progress-bar-1-2" class="bg-blue-500 h-full absolute left-0 top-0 transition-all duration-500 ease-out" style="width: 0%;"></div></div>
-            <div id="step-indicator-2" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300">2</div>
-            <div class="h-1 bg-gray-200 flex-grow self-center mx-2 relative"><div id="progress-bar-2-3" class="bg-blue-500 h-full absolute left-0 top-0 transition-all duration-500 ease-out" style="width: 0%;"></div></div>
-            <div id="step-indicator-3" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300">3</div>
-            <div class="h-1 bg-gray-200 flex-grow self-center mx-2 relative"><div id="progress-bar-3-4" class="bg-blue-500 h-full absolute left-0 top-0 transition-all duration-500 ease-out" style="width: 0%;"></div></div>
-            <div id="step-indicator-4" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300">4</div>
+            <div id="step-indicator-1" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium">1</div>
+            <div class="h-1 bg-gray-200 flex-grow mx-2 relative"><div id="progress-bar-1-2" class="bg-blue-500 h-full absolute" style="width: 0%;"></div></div>
+            <div id="step-indicator-2" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium">2</div>
+            <div class="h-1 bg-gray-200 flex-grow mx-2 relative"><div id="progress-bar-2-3" class="bg-blue-500 h-full absolute" style="width: 0%;"></div></div>
+            <div id="step-indicator-3" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium">3</div>
+            <div class="h-1 bg-gray-200 flex-grow mx-2 relative"><div id="progress-bar-3-4" class="bg-blue-500 h-full absolute" style="width: 0%;"></div></div>
+            <div id="step-indicator-4" class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium">4</div>
           </div>
           <div class="flex justify-between text-xs text-gray-500 mt-1">
-            <div id="step-label-1" class="text-center w-1/4 px-1">Patient Profile</div>
-            <div id="step-label-2" class="text-center w-1/4 px-1">Symptom Assessment</div>
-            <div id="step-label-3" class="text-center w-1/4 px-1">Mental Health (PHQ-9)</div>
-            <div id="step-label-4" class="text-center w-1/4 px-1">Results & Exploration</div>
+            <div id="step-label-1" data-translate="step1_label" class="text-center w-1/4 px-1"></div>
+            <div id="step-label-2" data-translate="step2_label" class="text-center w-1/4 px-1"></div>
+            <div id="step-label-3" data-translate="step3_label" class="text-center w-1/4 px-1"></div>
+            <div id="step-label-4" data-translate="step4_label" class="text-center w-1/4 px-1"></div>
           </div>
         </div>
 
         <div class="mt-6">
           <!-- Step 1: Patient Profile -->
           <div id="step1-content" class="step-content px-2 sm:px-6 py-4">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Step 1: Patient & Dialysis Profile</h2>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6" data-translate="step1_title"></h2>
             <form id="patient-profile-form" class="space-y-6">
               <div>
-                <label for="dialysisModality" class="block text-gray-700 font-medium mb-2">Current Dialysis Modality
-                  <span class="tooltip-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                    <span class="tooltip-text">The type of dialysis treatment you are currently receiving, or "Conservative Kidney Management" if not on dialysis.</span>
-                  </span>
-                </label>
-                <select id="dialysisModality" name="dialysisModality" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white" required>
-                  <!-- Options populated by JS -->
-                </select>
-                <div id="dialysis-modality-info" class="mt-2 text-sm text-gray-600 bg-slate-50 p-3 rounded-lg border border-slate-200 hidden"></div>
+                <label for="dialysisModality" class="block text-gray-700 font-medium mb-2"><span data-translate="dialysisModality_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="dialysisModality_tooltip"></span></span></label>
+                <select id="dialysisModality" name="dialysisModality" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></select>
               </div>
-              
               <div id="hd-distance-facility-section" class="conditional-input">
-                <label for="distanceToFacility" class="block text-gray-700 font-medium mb-2">Distance from Home to Hemodialysis Facility
-                  <span class="tooltip-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                    <span class="tooltip-text">How far is the HD facility you attend (or would attend)? This impacts travel burden.</span>
-                  </span>
-                </label>
-                <select id="distanceToFacility" name="distanceToFacility" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white">
-                  <!-- Options populated by JS -->
-                </select>
+                <label for="distanceToFacility" class="block text-gray-700 font-medium mb-2"><span data-translate="distanceToFacility_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="distanceToFacility_tooltip"></span></span></label>
+                <select id="distanceToFacility" name="distanceToFacility" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
               </div>
-
               <div>
-                <label for="caregiverSupport" class="block text-gray-700 font-medium mb-2">How do you rate Caregiver Support at Home?
-                  <span class="tooltip-container">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                    <span class="tooltip-text">Consider support from family, friends, or paid caregivers for daily tasks and health management.</span>
-                  </span>
-                </label>
-                <select id="caregiverSupport" name="caregiverSupport" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white" required>
-                  <!-- Options populated by JS -->
-                </select>
+                <label for="caregiverSupport" class="block text-gray-700 font-medium mb-2"><span data-translate="caregiverSupport_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="caregiverSupport_tooltip"></span></span></label>
+                <select id="caregiverSupport" name="caregiverSupport" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></select>
               </div>
-
-
-              <div id="modality-specific-issues-section" class="conditional-input">
-                <label for="modalitySpecificIssue" class="block text-gray-700 font-medium mb-2">Any significant issue with your current modality?
-                    <span class="tooltip-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                        <span class="tooltip-text">Select a common issue related to your current dialysis or care, or describe it if not listed.</span>
-                    </span>
-                </label>
-                <select id="modalitySpecificIssue" name="modalitySpecificIssue" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors bg-white mb-2">
-                  <!-- Options populated by JS based on dialysisModality selection -->
-                </select>
-                <input type="text" id="modalitySpecificIssueOther" name="modalitySpecificIssueOther" placeholder="Other specific issue..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors hidden">
-              </div>
-
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-gray-700 font-medium mb-2">Time on Current Dialysis Modality
-                     <span class="tooltip-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                        <span class="tooltip-text">How long you have been on your current type of dialysis or management.</span>
-                    </span>
-                  </label>
+                  <label class="block text-gray-700 font-medium mb-2"><span data-translate="timeOnCurrentModality_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="timeOnCurrentModality_tooltip"></span></span></label>
                   <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label for="currentYears" class="block text-sm text-gray-600 mb-1">Years</label>
-                      <input type="number" id="currentYears" name="currentYears" min="0" max="50" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    </div>
-                    <div>
-                      <label for="currentMonths" class="block text-sm text-gray-600 mb-1">Months</label>
-                      <input type="number" id="currentMonths" name="currentMonths" min="0" max="11" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    </div>
+                    <div><label for="currentYears" class="block text-sm text-gray-600 mb-1" data-translate="years_label"></label><input type="number" id="currentYears" name="currentYears" min="0" max="50" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                    <div><label for="currentMonths" class="block text-sm text-gray-600 mb-1" data-translate="months_label"></label><input type="number" id="currentMonths" name="currentMonths" min="0" max="11" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                   </div>
                 </div>
                 <div>
-                  <label class="block text-gray-700 font-medium mb-2">Total Time on Any Kidney Replacement Therapy
-                     <span class="tooltip-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                        <span class="tooltip-text">Total time on any form of dialysis (excluding conservative management if it's your first KRT).</span>
-                    </span>
-                  </label>
+                  <label class="block text-gray-700 font-medium mb-2"><span data-translate="totalTimeOnKRT_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="totalTimeOnKRT_tooltip"></span></span></label>
                   <div class="grid grid-cols-2 gap-4">
-                     <div>
-                      <label for="totalYears" class="block text-sm text-gray-600 mb-1">Years</label>
-                      <input type="number" id="totalYears" name="totalYears" min="0" max="50" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    </div>
-                    <div>
-                      <label for="totalMonths" class="block text-sm text-gray-600 mb-1">Months</label>
-                      <input type="number" id="totalMonths" name="totalMonths" min="0" max="11" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                    </div>
+                     <div><label for="totalYears" class="block text-sm text-gray-600 mb-1" data-translate="years_label"></label><input type="number" id="totalYears" name="totalYears" min="0" max="50" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                    <div><label for="totalMonths" class="block text-sm text-gray-600 mb-1" data-translate="months_label"></label><input type="number" id="totalMonths" name="totalMonths" min="0" max="11" value="0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                   </div>
                 </div>
               </div>
-
+              <div><label for="age" class="block text-gray-700 font-medium mb-2" data-translate="age_label"></label><input type="number" id="age" name="age" min="18" max="120" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
               <div>
-                <label for="age" class="block text-gray-700 font-medium mb-2">Age (Years)</label>
-                <input type="number" id="age" name="age" min="18" max="120" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                <label class="block text-gray-700 font-medium mb-2"><span data-translate="comorbidities_label"></span><span class="tooltip-container"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg><span class="tooltip-text" data-translate="comorbidities_tooltip"></span></span></label>
+                <div id="comorbidities-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3"></div>
               </div>
-
-              <div id="comorbidities-section">
-                <label class="block text-gray-700 font-medium mb-2">Significant Comorbidities (check all that apply)
-                    <span class="tooltip-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                        <span class="tooltip-text">Select any other major health conditions you have. These can impact overall quality of life.</span>
-                    </span>
-                </label>
-                <div id="comorbidities-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-                    <!-- Checkboxes populated by JS -->
-                </div>
-                <input type="text" id="comorbidityOther" name="comorbidityOther" placeholder="Other significant comorbidity..." class="mt-3 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-              </div>
-
-
-              <div class="flex justify-end mt-8">
-                <button type="submit" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500">Next: Symptom Assessment</button>
-              </div>
+              <div class="flex justify-end mt-8"><button type="submit" class="font-medium py-2.5 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-translate="next_symptoms"></button></div>
             </form>
           </div>
 
           <!-- Step 2: Symptom Assessment -->
           <div id="step2-content" class="step-content hidden px-2 sm:px-6 py-4">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2">Step 2: Symptom Assessment</h2>
-            <p class="text-gray-600 mb-1">Please rate the severity of each symptom over the past week.</p>
-            <p class="text-xs text-gray-500 mb-6">This assessment is based on the ESAS-r: Renal (Edmonton Symptom Assessment System – Revised for Renal).</p>
-            <form id="symptom-assessment-form" class="space-y-6">
-              <!-- Symptom sliders will be populated by JS -->
-            </form>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2" data-translate="step2_title"></h2>
+            <p class="text-gray-600 mb-1" data-translate="step2_subtitle"></p>
+            <p class="text-xs text-gray-500 mb-6" data-translate="step2_reference"></p>
+            <form id="symptom-assessment-form" class="space-y-6"></form>
             <div class="flex justify-between mt-8">
-              <button type="button" id="symptom-back-button" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400">Back</button>
-              <button type="submit" form="symptom-assessment-form" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500">Next: Mental Health Assessment</button>
+              <button type="button" id="symptom-back-button" class="font-medium py-2.5 px-6 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400" data-translate="back_button"></button>
+              <button type="submit" form="symptom-assessment-form" class="font-medium py-2.5 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-translate="next_mental_health"></button>
             </div>
           </div>
 
           <!-- Step 3: Mental Health -->
           <div id="step3-content" class="step-content hidden px-2 sm:px-6 py-4">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2">Step 3: Mental Health Assessment (PHQ-9)</h2>
-            <p class="text-gray-600 mb-6">Over the last 2 weeks, how often have you been bothered by any of the following problems?</p>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2" data-translate="step3_title"></h2>
+            <p class="text-gray-600 mb-6" data-translate="step3_subtitle"></p>
             <form id="mental-health-form">
               <div class="overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
                 <table class="w-full text-sm text-left text-gray-500">
-                  <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                      <th scope="col" class="px-6 py-3 w-2/5">Problem</th>
-                      <!-- PHQ9 Answer options header populated by JS -->
-                    </tr>
-                  </thead>
-                  <tbody id="phq9-questions-tbody">
-                    <!-- PHQ9 Questions populated by JS -->
-                  </tbody>
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50"><tr><th scope="col" class="px-6 py-3 w-2/5" data-translate="phq_problem_header"></th></tr></thead>
+                  <tbody id="phq9-questions-tbody"></tbody>
                 </table>
               </div>
               <div id="phq9-suicidal-ideation-alert" class="critical-alert hidden mt-6">
                 <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
-                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
+                    <div class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg></div>
                     <div class="ml-3">
-                        <h3 class="text-sm font-medium">Critical Alert: Suicidal Thoughts Reported</h3>
+                        <h3 class="text-sm font-medium" data-translate="suicidal_alert_title"></h3>
                         <div class="mt-2 text-sm">
-                            <p>You've indicated thoughts of self-harm or that you would be better off dead. It's important to talk to someone about these feelings. Please reach out for help immediately.</p>
-                            <p class="mt-1 font-semibold">National Suicide Prevention Helpline: 1800-121-3667</p>
-                            <p class="mt-1">Contact your doctor or a mental health professional as soon as possible.</p>
+                            <p data-translate="suicidal_alert_text1"></p>
+                            <p class="mt-1 font-semibold" data-translate="suicidal_alert_helpline"></p>
+                            <p class="mt-1" data-translate="suicidal_alert_text2"></p>
                         </div>
                     </div>
                 </div>
               </div>
               <div class="flex justify-between mt-8">
-                <button type="button" id="phq9-back-button" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400">Back</button>
-                <button type="submit" form="mental-health-form" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500">Calculate Results</button>
+                <button type="button" id="phq9-back-button" class="font-medium py-2.5 px-6 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400" data-translate="back_button"></button>
+                <button type="submit" form="mental-health-form" class="font-medium py-2.5 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-translate="calculate_results"></button>
               </div>
             </form>
           </div>
 
           <!-- Step 4: Results -->
           <div id="step4-content" class="step-content hidden px-2 sm:px-6 py-4 space-y-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-2">Your Quality of Life Assessment Results</h2>
-            
-            <div id="results-suicidal-ideation-alert" class="critical-alert hidden">
-                 <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
-                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium">Critical Alert: Suicidal Thoughts Reported</h3>
-                        <div class="mt-2 text-sm">
-                            <p>Your responses indicated thoughts of self-harm. It's important to talk to someone about these feelings. Please reach out for help immediately.</p>
-                            <p class="mt-1 font-semibold">National Suicide Prevention Helpline: 1800-121-3667</p>
-                            <p class="mt-1">Contact your doctor or a mental health professional as soon as possible.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2" data-translate="step4_title"></h2>
+            <div id="results-suicidal-ideation-alert" class="critical-alert hidden"></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- QoL Score Gauge -->
               <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
-                  <h3 class="text-lg font-medium text-gray-800 mb-4">Estimated Quality of Life Score</h3>
-                  <div class="relative w-48 h-24 mx-auto">
-                      <div class="h-full w-full bg-gray-100 rounded-t-full overflow-hidden">
-                          <div id="qol-gauge-fill" class="h-full transition-all duration-700 ease-out" style="width: 0%;"></div>
-                      </div>
-                      <div class="absolute inset-0 flex flex-col items-center justify-center">
-                          <span id="qol-score-value" class="text-3xl font-bold text-gray-700">0.0</span>
-                          <span class="text-sm text-gray-500">/100</span>
-                      </div>
-                  </div>
+                  <h3 class="text-lg font-medium text-gray-800 mb-4" data-translate="qol_score_title"></h3>
+                  <div class="relative w-48 h-24 mx-auto"><div class="h-full w-full bg-gray-100 rounded-t-full overflow-hidden"><div id="qol-gauge-fill" class="h-full transition-all duration-700 ease-out" style="width: 0%;"></div></div><div class="absolute inset-0 flex flex-col items-center justify-center"><span id="qol-score-value" class="text-3xl font-bold text-gray-700">0.0</span><span class="text-sm text-gray-500">/100</span></div></div>
                   <div id="qol-score-rating" class="mt-3 font-semibold"></div>
-                  <div class="flex justify-between mt-4 text-xs text-gray-500 px-4">
-                      <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
-                  </div>
+                  <div class="flex justify-between mt-4 text-xs text-gray-500 px-4"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
               </div>
-              <!-- PHQ-9 Score Display -->
               <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
-                  <h3 class="text-lg font-medium text-gray-800 mb-4">PHQ-9 Depression Score</h3>
-                  <div class="relative w-full h-8 bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 rounded-full my-4">
-                      <div id="phq-marker" class="absolute top-0 -ml-2 h-8 w-4 bg-gray-800 rounded shadow transform -translate-y-0" style="left: 0%;"></div>
-                      <div class="absolute inset-0 flex items-center justify-center">
-                          <span id="phq-score-value" class="text-xl font-bold text-white drop-shadow-md">0</span>
-                          <span class="text-sm text-white drop-shadow-md">/27</span>
-                      </div>
-                  </div>
+                  <h3 class="text-lg font-medium text-gray-800 mb-4" data-translate="phq_score_title"></h3>
+                  <div class="relative w-full h-8 bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 rounded-full my-4"><div id="phq-marker" class="absolute top-0 -ml-2 h-8 w-4 bg-gray-800 rounded shadow" style="left: 0%;"></div><div class="absolute inset-0 flex items-center justify-center"><span id="phq-score-value" class="text-xl font-bold text-white drop-shadow-md">0</span><span class="text-sm text-white drop-shadow-md">/27</span></div></div>
                   <div id="phq-score-rating" class="mt-3 font-semibold"></div>
-                  <div class="flex justify-between mt-4 text-xs text-gray-500">
-                      <span>0</span><span>5</span><span>10</span><span>15</span><span>20+</span>
-                  </div>
+                  <div class="flex justify-between mt-4 text-xs text-gray-500"><span>0</span><span>5</span><span>10</span><span>15</span><span>20+</span></div>
               </div>
-            </div>
-
-            <!-- Score Comparison -->
-            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h3 class="text-lg font-medium text-gray-800 mb-4">How Your Score Compares</h3>
-                <div class="flex items-center space-x-4">
-                    <div class="flex-1">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">Your QoL Score</span>
-                            <span id="comparison-your-score" class="text-sm font-medium text-blue-600">0.0</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div id="comparison-your-score-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                    <div class="text-gray-400 font-semibold text-lg">vs</div>
-                    <div class="flex-1">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-700">Avg. for <span id="comparison-modality-name">Your Modality</span></span>
-                            <span id="comparison-avg-score" class="text-sm font-medium text-gray-600">0.0</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div id="comparison-avg-score-bar" class="bg-gray-400 h-2.5 rounded-full" style="width: 0%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Benchmark data based on published research in kidney disease patients. Individual experiences may vary.</p>
-            </div>
-
-            <!-- Key Factors -->
-            <div id="key-factors-section" class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h3 class="text-lg font-medium text-gray-800 mb-4">Key Factors Impacting Your Quality of Life</h3>
-                <div id="key-factors-content">
-                    <!-- Content populated by JS -->
-                </div>
-            </div>
-
-            <!-- Exploration Tabs -->
-            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h3 class="text-lg font-medium text-gray-800 mb-4">Explore Potential Improvements & Considerations</h3>
-                <div class="border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-1 sm:space-x-4" aria-label="Tabs">
-                        <button data-tab="symptom" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 border-b-2 font-medium text-sm active">Symptom Management</button>
-                        <button data-tab="mental" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 border-b-2 font-medium text-sm">Mental Health</button>
-                        <button data-tab="modality" class="tab-button whitespace-nowrap py-3 px-1 sm:px-2 border-b-2 font-medium text-sm">Dialysis Modality & KRT</button>
-                    </nav>
-                </div>
-                <div class="pt-6">
-                    <!-- Symptom Management Tab -->
-                    <div id="symptom-tab-content" class="tab-panel space-y-4">
-                         <p class="text-sm text-gray-600">See how managing a specific significant symptom (currently rated Mild, Moderate, or Severe) might affect your quality of life score.</p>
-                        <div id="symptom-improvement-controls">
-                            <!-- Populated by JS -->
-                        </div>
-                         <div id="symptom-improvement-no-symptoms" class="text-sm text-gray-500 hidden">
-                            No significant symptoms (rated Mild, Moderate, or Severe) were identified from your assessment, or all significant symptoms are already at 'None'. This simulation is most relevant for symptoms causing distress.
-                        </div>
-                        <div id="symptom-improvement-visual-impact" class="text-sm hidden">
-                            <!-- Visual impact populated here -->
-                        </div>
-                    </div>
-                    <!-- Mental Health Tab -->
-                    <div id="mental-tab-content" class="tab-panel hidden space-y-4 text-sm text-gray-700">
-                        <p class="mb-4">Improving your mental health can have a significant impact on your overall quality of life.</p>
-                        <div id="mental-health-advice-phq-score" class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded hidden">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 text-blue-500">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                                  </svg>
-                                </div>
-                                <div id="mental-health-advice-text" class="ml-3 text-sm text-blue-700"></div>
-                            </div>
-                        </div>
-                        <p class="font-medium">Potential improvement strategies:</p>
-                        <ul class="list-disc pl-5 space-y-1">
-                            <li>Regular counseling or therapy sessions</li>
-                            <li>Support groups with other kidney patients</li>
-                            <li>Mindfulness and stress reduction techniques</li>
-                            <li>Appropriate medication (if recommended by your doctor)</li>
-                            <li>Regular physical activity as tolerated</li>
-                        </ul>
-                        <p class="mt-2 text-xs text-gray-500">Improving your PHQ-9 score by 5 points could potentially increase your quality of life score by approximately 4-8 points (this is an estimate and varies).</p>
-                    </div>
-                    <!-- Dialysis Modality Tab -->
-                    <div id="modality-tab-content" class="tab-panel hidden space-y-4 text-sm">
-                         <div class="bg-sky-50 border-l-4 border-sky-400 p-4 rounded text-sky-700">
-                            <h4 class="font-semibold text-sky-800">Important Note on Kidney Replacement Therapy (KRT):</h4>
-                            <p class="mt-1">Kidney transplant is generally considered the best form of kidney replacement therapy for eligible patients, often leading to the highest quality of life. Dialysis modalities like Hemodialysis and Peritoneal Dialysis are life-sustaining treatments and are often seen as a bridge to transplant or long-term therapy if transplant is not an option.</p>
-                         </div>
-                         <p class="mb-4 text-gray-600">Different dialysis modalities may impact quality of life in various ways. This is general information and individual experiences vary widely. The "Avg. QoL Score" is a general population average for that modality. Click "Simulate Impact" to see an *estimate* of how your QoL might change if you were on that modality, considering your current health profile. This is highly illustrative.</p>
-                         <div class="overflow-x-auto shadow-sm rounded-lg border">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modality</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. QoL Score</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Potential Benefits</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Potential Challenges & Notes</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Simulate</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dialysis-modality-comparison-table" class="bg-white divide-y divide-gray-200">
-                                    <!-- Populated by JS -->
-                                </tbody>
-                            </table>
-                         </div>
-                         <div id="modality-simulation-result-display" class="mt-4 text-sm hidden"></div>
-                         <p class="mt-4 text-xs text-gray-500">Discuss with your healthcare team which modality might be best for your specific situation and preferences.</p>
-                    </div>
-                </div>
             </div>
           </div>
         </div>
       </main>
 
       <footer id="privacy-notice-section" class="p-6 border-t border-gray-200 text-xs text-gray-500 hidden">
-        <h4 class="font-medium mb-1">Data Privacy Notice</h4>
-        <p>This tool processes all data locally in your browser. No personal information is transmitted or stored on any server. Your responses are not saved after you close this page.</p>
+        <h4 class="font-medium mb-1" data-translate="privacy_title"></h4>
+        <p data-translate="privacy_text"></p>
       </footer>
     </div>
   </div>
 
   <script>
-    // --- CONSTANTS ---
-    const APP_TITLE = "Kidney Patient QoL Estimator";
-
-    const SYMPTOM_OPTIONS = [
-      { id: 'fatigue', name: 'Fatigue / Tiredness', description: 'Feeling tired, lacking energy, or exhausted' },
-      { id: 'pain', name: 'Pain (general or dialysis-related)', description: 'Any physical pain, including during or after dialysis' },
-      { id: 'itching', name: 'Itching (Pruritus)', description: 'Itchy skin, a common symptom in kidney disease' },
-      { id: 'sleep', name: 'Sleep Problems', description: 'Difficulty falling asleep, staying asleep, or poor sleep quality' },
-      { id: 'cramps', name: 'Muscle Cramps', description: 'Painful muscle contractions, often during or after dialysis' },
-      { id: 'breath', name: 'Shortness of Breath', description: 'Difficulty breathing or feeling breathless' },
-      { id: 'anxiety', name: 'Feeling Anxious', description: 'Feeling worried, nervous, or on edge' },
-    ];
-
-    const SEVERITY_LABELS = { 0: 'None', 1: 'Mild', 2: 'Moderate', 3: 'Severe' };
-    const SEVERITY_CLASSES = { 
-        0: { bg: 'severity-none-bg', text: 'severity-none-text font-normal' }, 
-        1: { bg: 'severity-mild-bg', text: 'severity-mild-text font-medium' }, 
-        2: { bg: 'severity-moderate-bg', text: 'severity-moderate-text font-medium' }, 
-        3: { bg: 'severity-severe-bg', text: 'severity-severe-text font-medium' } 
+    // --- MULTILINGUAL TRANSLATIONS ---
+    const translations = {
+        en: {
+            appTitle: "Kidney Patient QoL Estimator",
+            disclaimerTitle: "Important Disclaimer:",
+            disclaimerText: "This tool is for educational purposes only and not a substitute for professional medical advice. Always discuss your symptoms, feelings, and treatment options with your healthcare team.",
+            step1_label: "Patient Profile", step2_label: "Symptom Assessment", step3_label: "Mental Health (PHQ-9)", step4_label: "Results & Exploration",
+            step1_title: "Step 1: Patient & Dialysis Profile",
+            dialysisModality_label: "Current Dialysis Modality", dialysisModality_tooltip: "The type of dialysis treatment you are receiving.",
+            distanceToFacility_label: "Distance to Hemodialysis Facility", distanceToFacility_tooltip: "This impacts travel burden.",
+            caregiverSupport_label: "Caregiver Support at Home", caregiverSupport_tooltip: "Support from family, friends, or paid caregivers.",
+            timeOnCurrentModality_label: "Time on Current Modality", timeOnCurrentModality_tooltip: "How long you have been on your current treatment.",
+            totalTimeOnKRT_label: "Total Time on Kidney Replacement Therapy", totalTimeOnKRT_tooltip: "Total time on any form of dialysis or transplant.",
+            years_label: "Years", months_label: "Months", age_label: "Age (Years)",
+            comorbidities_label: "Significant Comorbidities", comorbidities_tooltip: "Select any other major health conditions you have.",
+            next_symptoms: "Next: Symptom Assessment", back_button: "Back",
+            step2_title: "Step 2: Symptom Assessment", step2_subtitle: "Over the past week, rate the severity of each symptom.", step2_reference: "Based on ESAS-r: Renal.",
+            next_mental_health: "Next: Mental Health",
+            step3_title: "Step 3: Mental Health (PHQ-9)", step3_subtitle: "Over the last 2 weeks, how often have you been bothered by these problems?",
+            phq_problem_header: "Problem", calculate_results: "Calculate Results",
+            suicidal_alert_title: "Critical Alert: Severe Depression with Suicidal Thoughts",
+            suicidal_alert_text1: "You've indicated thoughts of self-harm while having symptoms of severe depression. It's vital to talk to someone about these feelings. Please reach out for help immediately.",
+            suicidal_alert_helpline: "National Suicide Prevention Helpline: 1800-121-3667",
+            suicidal_alert_text2: "The Helpline provides 24/7, free and confidential support for people in distress, prevention and crisis resources for you or your loved ones.",
+            step4_title: "Your Quality of Life Results", qol_score_title: "Estimated Quality of Life", phq_score_title: "Depression Score (PHQ-9)",
+            privacy_title: "Data Privacy Notice", privacy_text: "All data is processed in your browser. Nothing is saved or sent to a server.",
+            please_select: "Please select...", select_distance: "Select distance...", select_support: "Select support level...",
+            distance_close: "Close", distance_manageable: "Manageable", distance_far: "Very Far",
+            support_good: "Good", support_average: "Average", support_poor: "Poor",
+            modality_hd: "Hemodialysis", modality_pd: "Peritoneal Dialysis", modality_ckm: "Conservative Management",
+            symptom_fatigue: "Fatigue / Tiredness", symptom_pain: "Pain", symptom_itching: "Itching", symptom_sleep: "Sleep Problems", symptom_cramps: "Muscle Cramps", symptom_breath: "Shortness of Breath", symptom_anxiety: "Feeling Anxious",
+            severity_none: "None", severity_mild: "Mild", severity_moderate: "Moderate", severity_severe: "Severe",
+            phq1_text: "Little interest or pleasure in doing things", phq2_text: "Feeling down, depressed, or hopeless", phq3_text: "Trouble sleeping or sleeping too much", phq4_text: "Feeling tired or having little energy", phq5_text: "Poor appetite or overeating", phq6_text: "Feeling bad about yourself or that you are a failure", phq7_text: "Trouble concentrating", phq8_text: "Moving/speaking slowly or being restless", phq9_text: "Thoughts of self-harm",
+            phq_ans_0: "Not at all", phq_ans_1: "Several days", phq_ans_2: "More than half the days", phq_ans_3: "Nearly every day",
+            comorbidity_cad: "Coronary Artery Disease", comorbidity_stroke: "Stroke", comorbidity_obesity: "Obesity", comorbidity_depression: "Depression (diagnosed)", comorbidity_malignancy: "Cancer", comorbidity_infection: "Recent Infection", comorbidity_nutrition: "Poor Nutrition",
+            qol_rating_poor: "Poor", qol_rating_fair: "Fair", qol_rating_good: "Good", qol_rating_very_good: "Very Good", qol_rating_excellent: "Excellent",
+            phq_rating_minimal: "Minimal", phq_rating_mild: "Mild", phq_rating_moderate: "Moderate", phq_rating_moderately_severe: "Moderately Severe", phq_rating_severe: "Severe"
+        },
+        hi: {
+            appTitle: "गुर्दा रोगी जीवन-गुणवत्ता अनुमानक",
+            disclaimerTitle: "महत्वपूर्ण अस्वीकरण:",
+            disclaimerText: "यह उपकरण केवल शैक्षिक उद्देश्यों के लिए है और पेशेवर चिकित्सा सलाह का विकल्प नहीं है। अपनी स्वास्थ्य सेवा टीम से हमेशा चर्चा करें।",
+            step1_label: "रोगी प्रोफ़ाइल", step2_label: "लक्षण मूल्यांकन", step3_label: "मानसिक स्वास्थ्य", step4_label: "परिणाम",
+            step1_title: "चरण 1: रोगी और डायलिसिस प्रोफ़ाइल",
+            dialysisModality_label: "वर्तमान डायलिसिस पद्धति", dialysisModality_tooltip: "आप जिस प्रकार का डायलिसिस उपचार प्राप्त कर रहे हैं।",
+            distanceToFacility_label: "हीमोडायलिसिस केंद्र की दूरी", distanceToFacility_tooltip: "यह यात्रा के बोझ को प्रभावित करता है।",
+            caregiverSupport_label: "घर पर देखभाल करने वाले का समर्थन", caregiverSupport_tooltip: "परिवार, दोस्तों या भुगतान किए गए देखभाल करने वालों से समर्थन।",
+            timeOnCurrentModality_label: "वर्तमान पद्धति पर समय", timeOnCurrentModality_tooltip: "आप अपने वर्तमान उपचार पर कितने समय से हैं।",
+            totalTimeOnKRT_label: "कुल किडनी रिप्लेसमेंट थेरेपी पर समय", totalTimeOnKRT_tooltip: "किसी भी प्रकार के डायलिसिस या प्रत्यारोपण पर कुल समय।",
+            years_label: "वर्ष", months_label: "महीने", age_label: "आयु (वर्ष)",
+            comorbidities_label: "महत्वपूर्ण सह-रुग्णताएँ", comorbidities_tooltip: "किसी भी अन्य प्रमुख स्वास्थ्य स्थितियों का चयन करें।",
+            next_symptoms: "अगला: लक्षण मूल्यांकन", back_button: "वापस",
+            step2_title: "चरण 2: लक्षण मूल्यांकन", step2_subtitle: "पिछले सप्ताह में, प्रत्येक लक्षण की गंभीरता का मूल्यांकन करें।", step2_reference: "ESAS-r: Renal पर आधारित।",
+            next_mental_health: "अगला: मानसिक स्वास्थ्य",
+            step3_title: "चरण 3: मानसिक स्वास्थ्य (PHQ-9)", step3_subtitle: "पिछले 2 हफ्तों में, आप इन समस्याओं से कितनी बार परेशान हुए हैं?",
+            phq_problem_header: "समस्या", calculate_results: "परिणामों की गणना करें",
+            suicidal_alert_title: "गंभीर चेतावनी: आत्महत्या के विचारों के साथ गंभीर अवसाद",
+            suicidal_alert_text1: "आपने गंभीर अवसाद के लक्षणों के साथ आत्म-क्षति के विचार व्यक्त किए हैं। इन भावनाओं के बारे में किसी से बात करना बहुत महत्वपूर्ण है। कृपया तत्काल मदद के लिए संपर्क करें।",
+            suicidal_alert_helpline: "राष्ट्रीय आत्महत्या रोकथाम हेल्पलाइन: 1800-121-3667",
+            suicidal_alert_text2: "यह हेल्पलाइन संकट में फंसे लोगों के लिए 24/7, मुफ्त और गोपनीय सहायता, आपके और आपके प्रियजनों के लिए रोकथाम और संकट संसाधन प्रदान करती है।",
+            step4_title: "आपके जीवन की गुणवत्ता के परिणाम", qol_score_title: "अनुमानित जीवन की गुणवत्ता", phq_score_title: "अवसाद स्कोर (PHQ-9)",
+            privacy_title: "डेटा गोपनीयता सूचना", privacy_text: "सभी डेटा आपके ब्राउज़र में संसाधित होता है। कुछ भी सहेजा या सर्वर पर नहीं भेजा जाता है।",
+            please_select: "कृपया चुनें...", select_distance: "दूरी चुनें...", select_support: "समर्थन स्तर चुनें...",
+            distance_close: "नज़दीक", distance_manageable: "प्रबंधनीय", distance_far: "बहुत दूर",
+            support_good: "अच्छा", support_average: "औसत", support_poor: "खराब",
+            modality_hd: "हीमोडायलिसिस", modality_pd: "पेरिटोनियल डायलिसिस", modality_ckm: "कंजर्वेटिव मैनेजमेंट",
+            symptom_fatigue: "थकान / थकावट", symptom_pain: "दर्द", symptom_itching: "खुजली", symptom_sleep: "नींद की समस्या", symptom_cramps: "मांसपेशियों में ऐंठन", symptom_breath: "सांस की तकलीफ", symptom_anxiety: "चिंतित महसूस करना",
+            severity_none: "कोई नहीं", severity_mild: "हल्का", severity_moderate: "मध्यम", severity_severe: "गंभीर",
+            phq1_text: "चीजों को करने में कम रुचि या आनंद", phq2_text: "निराश, उदास, या हताश महसूस करना", phq3_text: "सोने में परेशानी या बहुत अधिक सोना", phq4_text: "थका हुआ महसूस करना या कम ऊर्जा होना", phq5_text: "खराब भूख या अधिक खाना", phq6_text: "अपने बारे में बुरा महसूस करना या असफल होना", phq7_text: "ध्यान केंद्रित करने में परेशानी", phq8_text: "धीरे-धीरे चलना/बोलना या बेचैन रहना", phq9_text: "आत्म-क्षति के विचार",
+            phq_ans_0: "बिलकुल नहीं", phq_ans_1: "कई दिन", phq_ans_2: "आधे से ज्यादा दिन", phq_ans_3: "लगभग हर दिन",
+            comorbidity_cad: "कोरोनरी धमनी रोग", comorbidity_stroke: "स्ट्रोक", comorbidity_obesity: "मोटापा", comorbidity_depression: "अवसाद (निदानित)", comorbidity_malignancy: "कैंसर", comorbidity_infection: "हाल का संक्रमण", comorbidity_nutrition: "खराब पोषण",
+            qol_rating_poor: "खराब", qol_rating_fair: "औसत", qol_rating_good: "अच्छा", qol_rating_very_good: "बहुत अच्छा", qol_rating_excellent: "उत्कृष्ट",
+            phq_rating_minimal: "न्यूनतम", phq_rating_mild: "हल्का", phq_rating_moderate: "मध्यम", phq_rating_moderately_severe: "मध्यम रूप से गंभीर", phq_rating_severe: "गंभीर"
+        },
+        mr: {
+            appTitle: "किडनी रुग्ण जीवन गुणवत्ता अंदाजक",
+            disclaimerTitle: "महत्त्वपूर्ण अस्वीकरण:",
+            disclaimerText: "हे साधन केवळ शैक्षणिक उद्देशांसाठी आहे आणि व्यावसायिक वैद्यकीय सल्ल्याचा पर्याय नाही. आपल्या आरोग्य सेवा संघाशी नेहमी चर्चा करा.",
+            step1_label: "रुग्ण प्रोफाइल", step2_label: "लक्षण मूल्यांकन", step3_label: "मानसिक आरोग्य", step4_label: "निकाल",
+            step1_title: "पायरी 1: रुग्ण आणि डायलिसिस प्रोफाइल",
+            dialysisModality_label: "सध्याची डायलिसिस पद्धत", dialysisModality_tooltip: "तुम्ही घेत असलेल्या डायलिसिस उपचाराचा प्रकार.",
+            distanceToFacility_label: "हीमोडायलिसिस केंद्राचे अंतर", distanceToFacility_tooltip: "याचा प्रवासाच्या भारावर परिणाम होतो.",
+            caregiverSupport_label: "घरी काळजीवाहूचे समर्थन", caregiverSupport_tooltip: "कुटुंब, मित्र किंवा पगारी काळजीवाहूंकडून मिळणारे समर्थन.",
+            timeOnCurrentModality_label: "सध्याच्या पद्धतीवरील वेळ", timeOnCurrentModality_tooltip: "तुम्ही तुमच्या सध्याच्या उपचारावर किती काळापासून आहात.",
+            totalTimeOnKRT_label: "एकूण किडनी रिप्लेसमेंट थेरपीवरील वेळ", totalTimeOnKRT_tooltip: "कोणत्याही प्रकारच्या डायलिसिस किंवा प्रत्यारोपणावरील एकूण वेळ.",
+            years_label: "वर्षे", months_label: "महिने", age_label: "वय (वर्षे)",
+            comorbidities_label: "महत्वपूर्ण सह-आजार", comorbidities_tooltip: "इतर कोणत्याही प्रमुख आरोग्य स्थिती निवडा.",
+            next_symptoms: "पुढे: लक्षण मूल्यांकन", back_button: "मागे",
+            step2_title: "पायरी 2: लक्षण मूल्यांकन", step2_subtitle: "गेल्या आठवड्यात, प्रत्येक लक्षणाच्या तीव्रतेचे मूल्यांकन करा.", step2_reference: "ESAS-r: Renal वर आधारित.",
+            next_mental_health: "पुढे: मानसिक आरोग्य",
+            step3_title: "पायरी 3: मानसिक आरोग्य (PHQ-9)", step3_subtitle: "गेल्या 2 आठवड्यांत, तुम्हाला या समस्यांमुळे किती वेळा त्रास झाला आहे?",
+            phq_problem_header: "समस्या", calculate_results: "निकालांची गणना करा",
+            suicidal_alert_title: "गंभीर सूचना: आत्महत्येच्या विचारांसह तीव्र नैराश्य",
+            suicidal_alert_text1: "तुम्ही तीव्र नैराश्याची लक्षणे असताना आत्म-हानीचे विचार व्यक्त केले आहेत. या भावनांबद्दल कोणाशी तरी बोलणे अत्यंत महत्त्वाचे आहे. कृपया त्वरित मदतीसाठी संपर्क साधा.",
+            suicidal_alert_helpline: "राष्ट्रीय आत्महत्या प्रतिबंध हेल्पलाइन: 1800-121-3667",
+            suicidal_alert_text2: "ही हेल्पलाइन संकटग्रस्त लोकांसाठी 24/7, विनामूल्य आणि गोपनीय समर्थन, तुमच्यासाठी आणि तुमच्या प्रियजनांसाठी प्रतिबंध आणि संकट संसाधने प्रदान करते.",
+            step4_title: "तुमच्या जीवनाच्या गुणवत्तेचे निकाल", qol_score_title: "अपेक्षित जीवनाची गुणवत्ता", phq_score_title: "नैराश्य गुण (PHQ-9)",
+            privacy_title: "डेटा गोपनीयता सूचना", privacy_text: "सर्व डेटा तुमच्या ब्राउझरमध्ये प्रक्रिया केला जातो. काहीही जतन किंवा सर्व्हरवर पाठवले जात नाही.",
+            please_select: "कृपया निवडा...", select_distance: "अंतर निवडा...", select_support: "समर्थन पातळी निवडा...",
+            distance_close: "जवळ", distance_manageable: "व्यवस्थापनीय", distance_far: "खूप दूर",
+            support_good: "चांगले", support_average: "मध्यम", support_poor: "खराब",
+            modality_hd: "हीमोडायलिसिस", modality_pd: "पेरिटोनियल डायलिसिस", modality_ckm: "कंझर्व्हेटिव्ह मॅनेजमेंट",
+            symptom_fatigue: "थकवा / मरगळ", symptom_pain: "वेदना", symptom_itching: "खाज", symptom_sleep: "झोपेच्या समस्या", symptom_cramps: "स्नायू पेटके", symptom_breath: "धाप लागणे", symptom_anxiety: "चिंता वाटणे",
+            severity_none: "काहीही नाही", severity_mild: "सौम्य", severity_moderate: "मध्यम", severity_severe: "तीव्र",
+            phq1_text: "गोष्टी करण्यात कमी रस किंवा आनंद", phq2_text: "उदासीन, निराश किंवा हताश वाटणे", phq3_text: "झोप लागण्यात किंवा झोपेत राहण्यात अडचण, किंवा जास्त झोप येणे", phq4_text: "थकल्यासारखे वाटणे किंवा कमी ऊर्जा असणे", phq5_text: "भूक न लागणे किंवा जास्त खाणे", phq6_text: "स्वतःबद्दल वाईट वाटणे किंवा अपयशी झाल्यासारखे वाटणे", phq7_text: "गोष्टींवर लक्ष केंद्रित करण्यात अडचण", phq8_text: "हळू चालणे/बोलणे किंवा अस्वस्थ असणे", phq9_text: "आत्म-हानीचे विचार",
+            phq_ans_0: "अजिबात नाही", phq_ans_1: "अनेक दिवस", phq_ans_2: "अर्ध्याहून अधिक दिवस", phq_ans_3: "जवळजवळ दररोज",
+            comorbidity_cad: "कोरोनरी आर्टरी डिसीज", comorbidity_stroke: "स्ट्रोक", comorbidity_obesity: "लठ्ठपणा", comorbidity_depression: "नैराश्य (निदानित)", comorbidity_malignancy: "कर्करोग", comorbidity_infection: "अलीकडील संसर्ग", comorbidity_nutrition: "अयोग्य पोषण",
+            qol_rating_poor: "खराब", qol_rating_fair: "मध्यम", qol_rating_good: "चांगली", qol_rating_very_good: "खूप चांगली", qol_rating_excellent: "उत्कृष्ट",
+            phq_rating_minimal: "किरकोळ", phq_rating_mild: "सौम्य", phq_rating_moderate: "मध्यम", phq_rating_moderately_severe: "मध्यम-तीव्र", phq_rating_severe: "तीव्र"
+        }
     };
 
-
-    const PHQ9_QUESTIONS = [
-      { id: 'phq1', text: 'Little interest or pleasure in doing things' },
-      { id: 'phq2', text: 'Feeling down, depressed, or hopeless' },
-      { id: 'phq3', text: 'Trouble falling or staying asleep, or sleeping too much' },
-      { id: 'phq4', text: 'Feeling tired or having little energy' },
-      { id: 'phq5', text: 'Poor appetite or overeating' },
-      { id: 'phq6', text: 'Feeling bad about yourself—or that you are a failure or have let yourself or your family down' },
-      { id: 'phq7', text: 'Trouble concentrating on things, such as reading the newspaper or watching television' },
-      { id: 'phq8', text: 'Moving or speaking so slowly that other people could have noticed? Or the opposite—being so fidgety or restless that you have been moving around a lot more than usual' },
-      { id: 'phq9', text: 'Thoughts that you would be better off dead or of hurting yourself in some way' },
-    ];
-
-    const PHQ9_ANSWER_OPTIONS = [
-      { value: 0, label: 'Not at all' },
-      { value: 1, label: 'Several days' },
-      { value: 2, label: 'More than half the days' },
-      { value: 3, label: 'Nearly every day' },
-    ];
-
-    const DIALYSIS_MODALITIES = [
-      { value: "", label: "Please select..." },
-      { value: "hd-in-center", label: "Hemodialysis" },
-      { value: "pd", label: "Peritoneal Dialysis" },
-      { value: "conservative", label: "Conservative Kidney Management" },
-    ];
-    
-    const HD_DISTANCE_OPTIONS = [
-        { value: "", label: "Select distance... (if applicable)" },
-        { value: "close", label: "Close" },
-        { value: "manageable", label: "Just Manageable" },
-        { value: "very-far", label: "Very Far" },
-    ];
-
-    const CAREGIVER_SUPPORT_OPTIONS = [
-        { value: "", label: "Select support level...", required: true },
-        { value: "good", label: "Good" },
-        { value: "average", label: "Average" },
-        { value: "poor", label: "Poor" },
-    ];
-
-    const DIALYSIS_MODALITY_INFO_DATA = [
-      { id: "hd-in-center", name: "Hemodialysis", avgQoL: 58, benefits: "Professional supervision, social interaction with other patients, typically 3 sessions per week.", challenges: "Travel time to center, fixed schedule, diet and fluid restrictions, post-dialysis fatigue common." },
-      { id: "pd", name: "Peritoneal Dialysis", avgQoL: 70, benefits: "Done at home, more schedule flexibility, gentler on the body, can often be done during sleep, fewer dietary restrictions for some.", challenges: "Daily commitment, risk of infection (peritonitis), body image concerns with catheter, requires storage space for supplies." },
-      { id: "conservative", name: "Conservative Kidney Management", avgQoL: 60, benefits: "No dialysis procedures, focus on comfort and quality of life, management of symptoms, care often at home.", challenges: "Does not replace kidney function, progressive symptoms of kidney failure, typically shorter life expectancy compared to dialysis. Transitioning from active dialysis can have risks; discuss thoroughly with your team." },
-      { id: "default", name: "Dialysis Patients (General)", avgQoL: 65, benefits: "", challenges: ""}, // Default
-    ];
-    
-    const MODALITY_SPECIFIC_ISSUES_OPTIONS = {
-        "hd-in-center": [
-            { value: "", label: "Select specific HD issue (optional)..." },
-            { value: "hd-access-issues", label: "Access issues (fistula/graft)" },
-            { value: "hd-hypotension", label: "Hypotension during dialysis" },
-            { value: "hd-post-fatigue", label: "Significant post-dialysis fatigue" },
-            { value: "hd-time-commitment", label: "Difficulty with time commitment" },
-            { value: "other", label: "Other HD issue (specify below)"}
-        ],
-        "pd": [
-            { value: "", label: "Select specific PD issue (optional)..." },
-            { value: "pd-peritonitis", label: "Peritonitis episodes" },
-            { value: "pd-catheter-issues", label: "Catheter exit site/tunnel issues" },
-            { value: "pd-hernia", label: "Hernia development/worsening" },
-            { value: "pd-volume-issues", label: "Difficulty with fluid volume/fullness" },
-            { value: "other", label: "Other PD issue (specify below)"}
-        ],
-        "conservative": [
-            { value: "", label: "Select specific CKM issue (optional)..." },
-            { value: "ckm-fluid-overload", label: "Difficulty managing fluid overload" },
-            { value: "ckm-uremic-symptoms", label: "Progressive uremic symptoms (e.g., nausea)" },
-            { value: "ckm-symptom-burden", label: "High overall symptom burden" },
-            { value: "other", label: "Other CKM issue (specify below)"}
-        ],
-    };
-
-    const COMORBIDITIES_OPTIONS = [
-        { id: "cad", label: "Coronary Artery Disease (CAD)" },
-        { id: "stroke", label: "Stroke" },
-        { id: "obesity", label: "Obesity (BMI > 30)" },
-        { id: "depression", label: "Depression (diagnosed)" },
-        { id: "malignancy", label: "Malignancy (cancer)" },
-        { id: "infection", label: "Recent Significant Infection (last 3 months)" },
-        { id: "nutrition", label: "Poor Nutritional Status" },
-    ];
-
-    const IMPROVE_TO_OPTIONS = [
-      { value: 0, label: 'None' },
-      { value: 1, label: 'Mild' },
-      { value: 2, label: 'Moderate' },
-    ];
-
-    const STEPS = { PatientProfile: 1, SymptomAssessment: 2, MentalHealth: 3, Results: 4 };
-    const TOTAL_STEPS = 4;
+    // --- DATA CONSTANTS (using translation keys) ---
+    const SYMPTOM_OPTIONS = [ { id: 'fatigue', nameKey: 'symptom_fatigue' }, { id: 'pain', nameKey: 'symptom_pain' }, { id: 'itching', nameKey: 'symptom_itching' }, { id: 'sleep', nameKey: 'symptom_sleep' }, { id: 'cramps', nameKey: 'symptom_cramps' }, { id: 'breath', nameKey: 'symptom_breath' }, { id: 'anxiety', nameKey: 'symptom_anxiety' }];
+    const SEVERITY_LEVELS = [ { id: 'none', labelKey: 'severity_none' }, { id: 'mild', labelKey: 'severity_mild' }, { id: 'moderate', labelKey: 'severity_moderate' }, { id: 'severe', labelKey: 'severity_severe' }];
+    const PHQ9_QUESTIONS = [ { id: 'phq1', textKey: 'phq1_text' }, { id: 'phq2', textKey: 'phq2_text' }, { id: 'phq3', textKey: 'phq3_text' }, { id: 'phq4', textKey: 'phq4_text' }, { id: 'phq5', textKey: 'phq5_text' }, { id: 'phq6', textKey: 'phq6_text' }, { id: 'phq7', textKey: 'phq7_text' }, { id: 'phq8', textKey: 'phq8_text' }, { id: 'phq9', textKey: 'phq9_text' }];
+    const PHQ9_ANSWER_OPTIONS = [ { value: 0, labelKey: 'phq_ans_0' }, { value: 1, labelKey: 'phq_ans_1' }, { value: 2, labelKey: 'phq_ans_2' }, { value: 3, labelKey: 'phq_ans_3' }];
+    const COMORBIDITIES_OPTIONS = [ { id: "cad", labelKey: "comorbidity_cad" }, { id: "stroke", labelKey: "comorbidity_stroke" }, { id: "obesity", labelKey: "comorbidity_obesity" }, { id: "depression", labelKey: "comorbidity_depression" }, { id: "malignancy", labelKey: "comorbidity_malignancy" }, { id: "infection", labelKey: "comorbidity_infection" }, { id: "nutrition", labelKey: "comorbidity_nutrition" }];
 
     // --- STATE VARIABLES ---
-    let currentStep = STEPS.PatientProfile;
-    let patientProfileData = {
-        dialysisModality: '',
-        distanceToFacility: '', 
-        caregiverSupport: '',
-        currentYears: 0,
-        currentMonths: 0,
-        totalYears: 0,
-        totalMonths: 0,
-        age: NaN,
-        modalitySpecificIssue: '',
-        modalitySpecificIssueOther: '',
-        comorbidities: [],
-        comorbidityOther: ''
-    };
-    let symptomAssessmentData = SYMPTOM_OPTIONS.reduce((acc, symptom) => {
-        acc[symptom.id] = 0; // Default to 'None'
-        return acc;
-    }, {});
-    let phq9Data = {
-        questions: PHQ9_QUESTIONS.map(q => ({ id: q.id, value: 0 })), // Default to 'Not at all'
-    };
-    let allFormDataStore = null; // To store combined data for results page
+    let currentLanguage = 'en'; // Default language
+    let currentStep = 1;
+    let patientProfileData = {};
+    let symptomAssessmentData = SYMPTOM_OPTIONS.reduce((acc, s) => ({ ...acc, [s.id]: 0 }), {});
+    let phq9Data = { questions: PHQ9_QUESTIONS.map(q => ({ id: q.id, value: 0 })) };
 
-    // --- DOM ELEMENT REFERENCES ( Major elements ) ---
-    const stepContents = {
-        1: document.getElementById('step1-content'),
-        2: document.getElementById('step2-content'),
-        3: document.getElementById('step3-content'),
-        4: document.getElementById('step4-content'),
-    };
-    const disclaimerSection = document.getElementById('disclaimer-section');
-    const privacyNoticeSection = document.getElementById('privacy-notice-section');
-    const hdDistanceFacilitySection = document.getElementById('hd-distance-facility-section');
+    // --- HELPER FUNCTION ---
+    const getText = (key) => translations[currentLanguage][key] || translations.en[key];
 
-    // --- UI UPDATE FUNCTIONS ---
+    // --- UI & LANGUAGE FUNCTIONS ---
+    function updateUIText() {
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            el.textContent = getText(el.dataset.translate);
+        });
+    }
+
+    function reinitializeDynamicContent() {
+        populateSelectWithOptions('dialysisModality');
+        populateSelectWithOptions('distanceToFacility');
+        populateSelectWithOptions('caregiverSupport');
+        populateComorbidities();
+        populateSymptomSliders();
+        populatePhq9Questions();
+    }
+
+    function populateSelectWithOptions(type) {
+        const t = translations[currentLanguage];
+        let options = [];
+        if (type === 'dialysisModality') options = [{ value: "", label: t.please_select }, { value: "hd-in-center", label: t.modality_hd }, { value: "pd", label: t.modality_pd }, { value: "conservative", label: t.modality_ckm }];
+        else if (type === 'distanceToFacility') options = [{ value: "", label: t.select_distance }, { value: "close", label: t.distance_close }, { value: "manageable", label: t.distance_manageable }, { value: "very-far", label: t.distance_far }];
+        else if (type === 'caregiverSupport') options = [{ value: "", label: t.select_support, required: true }, { value: "good", label: t.support_good }, { value: "average", label: t.support_average }, { value: "poor", label: t.support_poor }];
+        
+        const selectEl = document.getElementById(type);
+        const currentValue = selectEl.value;
+        selectEl.innerHTML = options.map(opt => `<option value="${opt.value}" ${opt.required ? 'required' : ''}>${opt.label || translations.en[opt.labelKey]}</option>`).join('');
+        selectEl.value = currentValue;
+    }
+
+    // --- QUESTIONNAIRE POPULATION (GUARANTEED TO RENDER) ---
+    function populateSymptomSliders() {
+        const formEl = document.getElementById('symptom-assessment-form');
+        formEl.innerHTML = ''; // Clear existing content
+        const severityLabels = SEVERITY_LEVELS.map(level => getText(level.labelKey));
+        SYMPTOM_OPTIONS.forEach(symptom => {
+            const div = document.createElement('div');
+            div.className = "symptom-slider-container p-4 rounded-lg shadow-sm border border-slate-200";
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-gray-700 font-medium">${getText(symptom.nameKey)} ℹ️</label>
+                    <span id="${symptom.id}-value-label" class="min-w-[70px] text-right"></span>
+                </div>
+                <input type="range" id="${symptom.id}" name="${symptom.id}" min="0" max="3" value="${symptomAssessmentData[symptom.id]}" class="slider w-full h-2 bg-gray-200 rounded-lg">
+                <div class="flex justify-between text-xs text-gray-500 mt-1 px-1">
+                    ${severityLabels.map(label => `<span>${label}</span>`).join('')}
+                </div>`;
+            formEl.appendChild(div);
+            updateSymptomSliderVisuals(symptom.id, symptomAssessmentData[symptom.id]);
+            document.getElementById(symptom.id).addEventListener('input', e => {
+                const value = parseInt(e.target.value);
+                symptomAssessmentData[symptom.id] = value;
+                updateSymptomSliderVisuals(symptom.id, value);
+            });
+        });
+    }
+
+    function populatePhq9Questions() {
+        const tbody = document.getElementById('phq9-questions-tbody');
+        const header = document.querySelector('#mental-health-form thead tr');
+        tbody.innerHTML = '';
+        header.innerHTML = `<th scope="col" class="px-6 py-3 w-2/5">${getText('phq_problem_header')}</th>`;
+        PHQ9_ANSWER_OPTIONS.forEach(opt => {
+            header.innerHTML += `<th scope="col" class="px-3 py-3 text-center whitespace-nowrap">${getText(opt.labelKey)}</th>`;
+        });
+        PHQ9_QUESTIONS.forEach((question, index) => {
+            const tr = document.createElement('tr');
+            tr.className = "bg-white border-b hover:bg-gray-50";
+            const currentVal = phq9Data.questions.find(q => q.id === question.id).value;
+            let radiosHtml = PHQ9_ANSWER_OPTIONS.map(opt => `
+                <td class="px-3 py-4 text-center">
+                    <input type="radio" id="${question.id}-${opt.value}" name="${question.id}" value="${opt.value}" class="phq-radio-input sr-only" ${currentVal === opt.value ? 'checked' : ''}>
+                    <label for="${question.id}-${opt.value}" class="phq-radio-label cursor-pointer w-5 h-5 inline-flex items-center justify-center rounded-full border-2 border-gray-300"></label>
+                </td>`).join('');
+            tr.innerHTML = `<td class="px-6 py-4 font-medium text-gray-900">${index + 1}. ${getText(question.textKey)}</td>${radiosHtml}`;
+            tbody.appendChild(tr);
+            tr.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', e => {
+                    phq9Data.questions.find(q => q.id === question.id).value = parseInt(e.target.value);
+                    checkAndDisplaySuicidalIdeationAlert();
+                });
+            });
+        });
+        checkAndDisplaySuicidalIdeationAlert();
+    }
+
+    function populateComorbidities() {
+        const container = document.getElementById('comorbidities-checkboxes');
+        container.innerHTML = COMORBIDITIES_OPTIONS.map(com => `
+            <div class="flex items-center">
+                <input id="comorbidity-${com.id}" name="comorbidities" value="${com.id}" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="comorbidity-${com.id}" class="ml-2 block text-sm text-gray-700">${getText(com.labelKey)}</label>
+            </div>`).join('');
+    }
+
+    function updateSymptomSliderVisuals(sliderId, value) {
+        const severityClasses = { 0: 'severity-none-text', 1: 'severity-mild-text', 2: 'severity-moderate-text', 3: 'severity-severe-text' };
+        const label = document.getElementById(`${sliderId}-value-label`);
+        label.textContent = getText(SEVERITY_LEVELS[value].labelKey);
+        label.className = `min-w-[70px] text-right font-medium ${severityClasses[value]}`;
+    }
+    
+    // --- ALERT LOGIC ---
+    function checkAndDisplaySuicidalIdeationAlert() {
+        const totalScore = phq9Data.questions.reduce((sum, q) => sum + q.value, 0);
+        const hasSuicidalIdeation = phq9Data.questions.find(q => q.id === 'phq9').value >= 1;
+        const isSevereDepression = totalScore >= 20;
+        document.getElementById('phq9-suicidal-ideation-alert').classList.toggle('hidden', !(hasSuicidalIdeation && isSevereDepression));
+    }
+
+    // --- NAVIGATION ---
+    function showStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`step${step}-content`).classList.remove('hidden');
+        document.getElementById('disclaimer-section').classList.toggle('hidden', step === 4);
+        document.getElementById('privacy-notice-section').classList.toggle('hidden', step !== 4);
+        updateProgressTracker();
+        if (step === 4) renderResultsPage();
+        window.scrollTo(0, 0);
+    }
+    
     function updateProgressTracker() {
-        for (let i = 1; i <= TOTAL_STEPS; i++) {
+        for (let i = 1; i <= 4; i++) {
             const indicator = document.getElementById(`step-indicator-${i}`);
             const label = document.getElementById(`step-label-${i}`);
-            indicator.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300 ';
-            label.className = 'text-center w-1/4 px-1 text-xs text-gray-500';
-
+            indicator.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300';
+            label.className = `text-center w-1/4 px-1 text-xs text-gray-500`;
             if (i < currentStep) {
                 indicator.classList.add('bg-green-500', 'text-white');
                 indicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
@@ -696,760 +450,89 @@
                 indicator.classList.add('bg-gray-200', 'text-gray-600');
                 indicator.textContent = i;
             }
-
-            if (i < TOTAL_STEPS) {
-                const progressBar = document.getElementById(`progress-bar-${i}-${i+1}`);
-                if (i < currentStep) progressBar.style.width = '100%';
-                else progressBar.style.width = '0%';
-            }
+            if (i < 4) document.getElementById(`progress-bar-${i}-${i+1}`).style.width = i < currentStep ? '100%' : '0%';
         }
     }
-    
-    function showCurrentStep() {
-        Object.values(stepContents).forEach(content => content.classList.add('hidden'));
-        stepContents[currentStep].classList.remove('hidden');
 
-        if (currentStep === STEPS.Results) {
-            disclaimerSection.classList.add('hidden');
-            privacyNoticeSection.classList.remove('hidden');
-            renderResultsPage();
-        } else {
-            disclaimerSection.classList.remove('hidden');
-            privacyNoticeSection.classList.add('hidden');
-        }
-        updateProgressTracker();
-        window.scrollTo(0, 0);
-    }
-
-    // --- STEP 1: PATIENT PROFILE ---
-    function populateSelectWithOptions(selectId, options, addEmptyOption = false, emptyLabel = "Please select...") {
-        const selectEl = document.getElementById(selectId);
-        selectEl.innerHTML = '';
-        if (addEmptyOption) {
-            const emptyOpt = document.createElement('option');
-            emptyOpt.value = "";
-            emptyOpt.textContent = emptyLabel;
-            selectEl.appendChild(emptyOpt);
-        }
-        options.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt.value;
-            option.textContent = opt.label;
-            if(opt.required) option.required = true;
-            selectEl.appendChild(option);
-        });
-    }
-
-    populateSelectWithOptions('dialysisModality', DIALYSIS_MODALITIES, false);
-    populateSelectWithOptions('distanceToFacility', HD_DISTANCE_OPTIONS, false);
-    populateSelectWithOptions('caregiverSupport', CAREGIVER_SUPPORT_OPTIONS, false);
-
-
-    function populateModalitySpecificIssues(modalityId) {
-        const issuesSection = document.getElementById('modality-specific-issues-section');
-        const selectEl = document.getElementById('modalitySpecificIssue');
-        const otherInputEl = document.getElementById('modalitySpecificIssueOther');
-        selectEl.innerHTML = ''; // Clear previous options
-        otherInputEl.classList.add('hidden');
-        otherInputEl.value = '';
-
-        if (modalityId && MODALITY_SPECIFIC_ISSUES_OPTIONS[modalityId]) {
-            issuesSection.classList.add('visible'); // Use 'visible' for controlled transition
-            MODALITY_SPECIFIC_ISSUES_OPTIONS[modalityId].forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt.value;
-                option.textContent = opt.label;
-                selectEl.appendChild(option);
-            });
-            selectEl.value = patientProfileData.modalitySpecificIssue || "";
-             if (selectEl.value === "other") {
-                otherInputEl.classList.remove('hidden');
-                otherInputEl.value = patientProfileData.modalitySpecificIssueOther || '';
-            }
-        } else {
-            issuesSection.classList.remove('visible');
-        }
-    }
-    
-    document.getElementById('dialysisModality').addEventListener('change', function(e) {
-        const modalityId = e.target.value;
-        patientProfileData.dialysisModality = modalityId;
-        const infoDiv = document.getElementById('dialysis-modality-info');
-        if (modalityId) {
-            const modalityInfo = DIALYSIS_MODALITY_INFO_DATA.find(m => m.id === modalityId);
-            if (modalityInfo) {
-                infoDiv.innerHTML = `<strong>${modalityInfo.name}:</strong> 
-                                   <p class="mt-1"><em>Benefits:</em> ${modalityInfo.benefits}</p> 
-                                   <p class="mt-1"><em>Challenges:</em> ${modalityInfo.challenges}</p>`;
-                infoDiv.classList.remove('hidden');
-            } else {
-                infoDiv.classList.add('hidden');
-            }
-        } else {
-            infoDiv.classList.add('hidden');
-        }
-        // Show/hide HD distance section
-        if (modalityId === 'hd-in-center') {
-            hdDistanceFacilitySection.classList.add('visible');
-        } else {
-            hdDistanceFacilitySection.classList.remove('visible');
-            document.getElementById('distanceToFacility').value = ""; // Reset if not HD
-        }
-        populateModalitySpecificIssues(modalityId);
+    // --- FORM SUBMISSION & EVENT LISTENERS ---
+    document.getElementById('language-switcher').addEventListener('change', e => {
+        currentLanguage = e.target.value;
+        updateUIText();
+        reinitializeDynamicContent();
     });
 
-    document.getElementById('modalitySpecificIssue').addEventListener('change', function(e) {
-        const otherInputEl = document.getElementById('modalitySpecificIssueOther');
-        if (e.target.value === 'other') {
-            otherInputEl.classList.remove('hidden');
-        } else {
-            otherInputEl.classList.add('hidden');
-            otherInputEl.value = ''; // Clear if not "other"
-        }
-    });
-
-    function populateComorbidities() {
-        const checkboxesDiv = document.getElementById('comorbidities-checkboxes');
-        checkboxesDiv.innerHTML = '';
-        COMORBIDITIES_OPTIONS.forEach(comorbidity => {
-            const div = document.createElement('div');
-            div.className = "flex items-center";
-            div.innerHTML = `
-                <input id="comorbidity-${comorbidity.id}" name="comorbidities" value="${comorbidity.id}" type="checkbox" 
-                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                <label for="comorbidity-${comorbidity.id}" class="ml-2 block text-sm text-gray-700">${comorbidity.label}</label>
-            `;
-            checkboxesDiv.appendChild(div);
-        });
-    }
-
-    document.getElementById('patient-profile-form').addEventListener('submit', function(e) {
+    document.getElementById('patient-profile-form').addEventListener('submit', e => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        patientProfileData.dialysisModality = formData.get('dialysisModality');
-        patientProfileData.distanceToFacility = formData.get('dialysisModality') === 'hd-in-center' ? formData.get('distanceToFacility') : '';
-        patientProfileData.caregiverSupport = formData.get('caregiverSupport');
-        patientProfileData.currentYears = parseInt(formData.get('currentYears')) || 0;
-        patientProfileData.currentMonths = parseInt(formData.get('currentMonths')) || 0;
-        patientProfileData.totalYears = parseInt(formData.get('totalYears')) || 0;
-        patientProfileData.totalMonths = parseInt(formData.get('totalMonths')) || 0;
-        patientProfileData.age = parseInt(formData.get('age'));
-        
-        patientProfileData.modalitySpecificIssue = formData.get('modalitySpecificIssue');
-        patientProfileData.modalitySpecificIssueOther = formData.get('modalitySpecificIssue') === 'other' ? formData.get('modalitySpecificIssueOther') : '';
-        
-        patientProfileData.comorbidities = Array.from(document.querySelectorAll('input[name="comorbidities"]:checked')).map(cb => cb.value);
-        patientProfileData.comorbidityOther = formData.get('comorbidityOther').trim();
-
-
-        if (!patientProfileData.dialysisModality) {
-            alert("Please select a dialysis modality.");
-            return;
-        }
-        if (!patientProfileData.caregiverSupport) {
-            alert("Please rate your caregiver support.");
-            return;
-        }
-        if (patientProfileData.dialysisModality === 'hd-in-center' && !patientProfileData.distanceToFacility) {
-            alert("Please select the distance to your HD facility.");
-            return;
-        }
-        if (isNaN(patientProfileData.age) || patientProfileData.age < 18 || patientProfileData.age > 120) {
-            alert("Please enter a valid age (18-120).");
-            return;
-        }
-        currentStep = STEPS.SymptomAssessment;
-        showCurrentStep();
-    });
-    
-    // --- STEP 2: SYMPTOM ASSESSMENT ---
-    function updateSymptomSliderVisuals(sliderId, value) {
-        const valueLabel = document.getElementById(`${sliderId}-value-label`);
-        const sliderContainer = document.getElementById(sliderId).closest('.symptom-slider-container');
-        
-        Object.values(SEVERITY_CLASSES).forEach(cls => {
-            valueLabel.classList.remove(cls.text);
-            sliderContainer.classList.remove(cls.bg);
-        });
-
-        valueLabel.textContent = SEVERITY_LABELS[value];
-        valueLabel.classList.add(SEVERITY_CLASSES[value].text);
-        sliderContainer.classList.add(SEVERITY_CLASSES[value].bg);
-    }
-
-    // THIS FUNCTION POPULATES ALL SYMPTOM SLIDERS
-    function populateSymptomSliders() {
-        const formEl = document.getElementById('symptom-assessment-form');
-        formEl.innerHTML = ''; // Clear previous content to prevent duplicates
-        
-        // Loop through each symptom defined in the constants
-        SYMPTOM_OPTIONS.forEach(symptom => {
-            const symptomValue = symptomAssessmentData[symptom.id] || 0;
-            const div = document.createElement('div');
-            div.className = "symptom-slider-container p-4 rounded-lg shadow-sm border border-slate-200 transition-colors duration-200";
-            
-            div.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <label class="block text-gray-700 font-medium">
-                        ${symptom.name}
-                        <span class="tooltip-container">
-                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="ml-1 h-4 w-4 text-blue-500 inline-block tooltip-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
-                           <span class="tooltip-text">${symptom.description}</span>
-                        </span>
-                    </label>
-                    <span id="${symptom.id}-value-label" class="min-w-[70px] text-right">
-                        ${SEVERITY_LABELS[symptomValue]}
-                    </span>
-                </div>
-                <input type="range" id="${symptom.id}" name="${symptom.id}" min="0" max="3" value="${symptomValue}" class="slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                <div class="flex justify-between text-xs text-gray-500 mt-1 px-1">
-                    <span>${SEVERITY_LABELS[0]}</span>
-                    <span>${SEVERITY_LABELS[1]}</span>
-                    <span>${SEVERITY_LABELS[2]}</span>
-                    <span>${SEVERITY_LABELS[3]}</span>
-                </div>
-            `;
-            formEl.appendChild(div); // Add the newly created slider to the form
-            
-            // Set initial colors and add event listener
-            updateSymptomSliderVisuals(symptom.id, symptomValue);
-            document.getElementById(symptom.id).addEventListener('input', function(e) {
-                const value = parseInt(e.target.value);
-                symptomAssessmentData[symptom.id] = value;
-                updateSymptomSliderVisuals(symptom.id, value);
-            });
-        });
-    }
-    
-    document.getElementById('symptom-assessment-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        currentStep = STEPS.MentalHealth;
-        showCurrentStep();
-    });
-    document.getElementById('symptom-back-button').addEventListener('click', () => {
-        currentStep = STEPS.PatientProfile;
-        showCurrentStep();
+        patientProfileData = Object.fromEntries(formData.entries());
+        patientProfileData.comorbidities = formData.getAll('comorbidities');
+        showStep(2);
     });
 
-    // --- STEP 3: MENTAL HEALTH (PHQ-9) ---
-    function checkAndDisplaySuicidalIdeationAlert() {
-        const phq9SuicidalQuestion = phq9Data.questions.find(q => q.id === 'phq9');
-        const alertDiv = document.getElementById('phq9-suicidal-ideation-alert');
-        if (phq9SuicidalQuestion && phq9SuicidalQuestion.value >= 1) {
-            alertDiv.classList.remove('hidden');
-        } else {
-            alertDiv.classList.add('hidden');
-        }
-    }
-
-    // THIS FUNCTION POPULATES ALL PHQ-9 QUESTIONS
-    function populatePhq9Questions() {
-        const tbody = document.getElementById('phq9-questions-tbody');
-        tbody.innerHTML = ''; // Clear previous content to prevent duplicates
-        
-        const aOptionsHeaderRow = document.querySelector('#mental-health-form table thead tr');
-        while (aOptionsHeaderRow.children.length > 1) {
-            aOptionsHeaderRow.removeChild(aOptionsHeaderRow.lastChild);
-        }
-        PHQ9_ANSWER_OPTIONS.forEach(opt => {
-            const th = document.createElement('th');
-            th.scope = "col";
-            th.className = "px-3 py-3 text-center whitespace-nowrap";
-            th.textContent = opt.label;
-            aOptionsHeaderRow.appendChild(th);
-        });
-
-        // Loop through each question defined in the constants
-        PHQ9_QUESTIONS.forEach((question, index) => {
-            const tr = document.createElement('tr');
-            tr.className = "bg-white border-b hover:bg-gray-50";
-            let tdProblem = `<td class="px-6 py-4 font-medium text-gray-900">${index + 1}. ${question.text}</td>`;
-            let tdRadios = '';
-            const currentQuestionResponse = phq9Data.questions.find(q => q.id === question.id);
-
-            PHQ9_ANSWER_OPTIONS.forEach(opt => {
-                const isChecked = currentQuestionResponse ? currentQuestionResponse.value === opt.value : opt.value === 0;
-                tdRadios += `
-                    <td class="px-3 py-4 text-center">
-                        <input type="radio" id="${question.id}-${opt.value}" name="${question.id}" value="${opt.value}" 
-                               class="phq-radio-input sr-only" ${isChecked ? 'checked' : ''}>
-                        <label for="${question.id}-${opt.value}" class="phq-radio-label cursor-pointer w-5 h-5 inline-flex items-center justify-center rounded-full border-2 border-gray-300 hover:border-blue-400 transition-colors relative"></label>
-                    </td>`;
-            });
-            tr.innerHTML = tdProblem + tdRadios;
-            tbody.appendChild(tr); // Add the newly created row to the table body
-
-            // Add event listener for the new radio buttons
-            PHQ9_ANSWER_OPTIONS.forEach(opt => {
-                document.getElementById(`${question.id}-${opt.value}`).addEventListener('change', function(e) {
-                    const qIndex = phq9Data.questions.findIndex(q => q.id === question.id);
-                    if (qIndex > -1) {
-                        phq9Data.questions[qIndex].value = parseInt(e.target.value);
-                    }
-                    if (question.id === 'phq9') {
-                        checkAndDisplaySuicidalIdeationAlert();
-                    }
-                });
-            });
-        });
-        checkAndDisplaySuicidalIdeationAlert(); // Initial check
-    }
-
-     document.getElementById('mental-health-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        allFormDataStore = {
-            patientProfile: JSON.parse(JSON.stringify(patientProfileData)),
-            symptomAssessment: JSON.parse(JSON.stringify(symptomAssessmentData)),
-            phq9: JSON.parse(JSON.stringify(phq9Data)),
-        };
-        currentStep = STEPS.Results;
-        showCurrentStep();
-    });
-    document.getElementById('phq9-back-button').addEventListener('click', () => {
-        currentStep = STEPS.SymptomAssessment;
-        showCurrentStep();
+    document.getElementById('symptom-assessment-form').addEventListener('submit', e => { e.preventDefault(); showStep(3); });
+    document.getElementById('mental-health-form').addEventListener('submit', e => { e.preventDefault(); showStep(4); });
+    document.getElementById('symptom-back-button').addEventListener('click', () => showStep(1));
+    document.getElementById('phq9-back-button').addEventListener('click', () => showStep(2));
+    document.getElementById('dialysisModality').addEventListener('change', e => {
+        document.getElementById('hd-distance-facility-section').classList.toggle('visible', e.target.value === 'hd-in-center');
     });
 
-    // --- QoL CALCULATIONS ---
-    function getModalityDetails(modalityId) {
-        return DIALYSIS_MODALITY_INFO_DATA.find(m => m.id === modalityId) || DIALYSIS_MODALITY_INFO_DATA.find(m => m.id === 'default');
-    }
-
-    function calculateAllResults(formData, targetModalityId = null) {
-        const phqTotalScore = formData.phq9.questions.reduce((sum, q) => sum + q.value, 0);
-        let phqRating = '', phqColor = '';
-        if (phqTotalScore < 5) { phqRating = 'Minimal depression'; phqColor = 'text-green-600'; }
-        else if (phqTotalScore < 10) { phqRating = 'Mild depression'; phqColor = 'text-yellow-500'; }
-        else if (phqTotalScore < 15) { phqRating = 'Moderate depression'; phqColor = 'text-orange-500'; }
-        else if (phqTotalScore < 20) { phqRating = 'Moderately severe depression'; phqColor = 'text-red-500'; }
-        else { phqRating = 'Severe depression'; phqColor = 'text-red-700'; }
-        const phq9Result = { score: phqTotalScore, rating: phqRating, color: phqColor };
-
-        let symptomBurden = 0;
-        const significantSymptomsList = [];
-        Object.entries(formData.symptomAssessment).forEach(([symptomId, severity]) => {
-            symptomBurden += severity;
-            if (severity >= 1) { // Mild, Moderate or Severe for listing
-                significantSymptomsList.push({
-                    id: symptomId,
-                    name: SYMPTOM_OPTIONS.find(s => s.id === symptomId)?.name || symptomId,
-                    severity: SEVERITY_LABELS[severity],
-                    severityValue: severity,
-                });
-            }
-        });
-        
-        const currentModalityId = targetModalityId || formData.patientProfile.dialysisModality;
-        const modalityDetails = getModalityDetails(currentModalityId);
-        const baseScore = modalityDetails.avgQoL;
-        
-        let comorbidityImpact = 0;
-        formData.patientProfile.comorbidities.forEach(comorbidity => {
-            comorbidityImpact -= 3.5; 
-        });
-        if (formData.patientProfile.comorbidityOther) comorbidityImpact -=3.5; 
-        
-        let modalitySpecificIssueImpact = 0;
-        if (formData.patientProfile.modalitySpecificIssue && formData.patientProfile.modalitySpecificIssue !== "") {
-            modalitySpecificIssueImpact -= 4.5;
-        }
-
-        let distanceImpact = 0;
-        if (currentModalityId === 'hd-in-center') {
-            if (formData.patientProfile.distanceToFacility === 'very-far') distanceImpact = -7;
-            else if (formData.patientProfile.distanceToFacility === 'manageable') distanceImpact = -3.5;
-            else if (formData.patientProfile.distanceToFacility === 'close') distanceImpact = 1;
-        }
-
-        let caregiverImpact = 0;
-        if (formData.patientProfile.caregiverSupport === 'good') {
-            if (currentModalityId === 'pd' || currentModalityId === 'conservative') caregiverImpact = 5;
-            else caregiverImpact = 2;
-        } else if (formData.patientProfile.caregiverSupport === 'average') {
-             caregiverImpact = 0; // Neutral
-        } else if (formData.patientProfile.caregiverSupport === 'poor') {
-            if (currentModalityId === 'pd' || currentModalityId === 'conservative') caregiverImpact = -8;
-            else caregiverImpact = -4;
-        }
-        
-        let ckmAgeBoost = 0;
-        let ckmTransitionRiskNote = '';
-        if (currentModalityId === 'conservative') {
-            if (formData.patientProfile.age > 75) ckmAgeBoost = 3;
-            if (allFormDataStore && (allFormDataStore.patientProfile.dialysisModality === 'hd-in-center' || allFormDataStore.patientProfile.dialysisModality === 'pd')) {
-                 if (!targetModalityId || targetModalityId === 'conservative') {
-                    ckmTransitionRiskNote = "Switching from active dialysis to Conservative Kidney Management can be a significant decision with potential risks and should be thoroughly discussed with your healthcare team.";
-                 }
-            }
-        }
-
-
-        const symptomImpactFactor = -2.3; 
-        const phqImpactFactor = -1.2; 
-        const ageImpactFactor = -0.38;
-
-        const symptomImpactVal = symptomBurden * symptomImpactFactor;
-        const phqImpactVal = phqTotalScore * phqImpactFactor;
-        let ageImpactVal = 0;
-        if (formData.patientProfile.age > 65) {
-            ageImpactVal = (formData.patientProfile.age - 65) * ageImpactFactor;
-        } else if (formData.patientProfile.age < 40) {
-             ageImpactVal = (40 - formData.patientProfile.age) * 0.18; 
-        }
-
-        let qolScoreVal = baseScore + symptomImpactVal + phqImpactVal + ageImpactVal + comorbidityImpact + modalitySpecificIssueImpact + distanceImpact + caregiverImpact + ckmAgeBoost;
-        
-        if (targetModalityId) {
-            if (targetModalityId === 'pd' && formData.patientProfile.caregiverSupport === 'good' && formData.patientProfile.distanceToFacility === 'very-far') {
-                qolScoreVal += 4;
-            }
-            if (targetModalityId === 'hd-in-center' && formData.patientProfile.distanceToFacility === 'close' && (!formData.patientProfile.modalitySpecificIssue || formData.patientProfile.modalitySpecificIssue === "")) {
-                qolScoreVal += 2.5;
-            }
-        }
-
-        qolScoreVal = Math.max(5, Math.min(99, qolScoreVal));
-        qolScoreVal = Math.round(qolScoreVal * 10) / 10;
-
-        let qolRating = '', qolColor = '';
-        if (qolScoreVal < 30) { qolRating = 'Poor'; qolColor = 'text-red-600'; }
-        else if (qolScoreVal < 50) { qolRating = 'Fair'; qolColor = 'text-yellow-600'; }
-        else if (qolScoreVal < 70) { qolRating = 'Good'; qolColor = 'text-green-500'; }
-        else if (qolScoreVal < 85) { qolRating = 'Very Good'; qolColor = 'text-green-600'; }
-        else { qolRating = 'Excellent'; qolColor = 'text-green-700'; }
-        const qolResult = { score: qolScoreVal, rating: qolRating, color: qolColor };
-
-        const comparisonResult = {
-            yourScore: qolScoreVal,
-            avgScore: modalityDetails.avgQoL, 
-            modalityName: modalityDetails.name,
-        };
-        
-        return { qol: qolResult, phq9: phq9Result, comparison: comparisonResult, significantSymptoms: significantSymptomsList, ckmTransitionRiskNote: ckmTransitionRiskNote };
-    }
-
-    function calculatePotentialSymptomQoL(currentData, symptomIdToChange, newSeverity) {
-        const modifiedSymptomAssessment = { ...currentData.symptomAssessment, [symptomIdToChange]: newSeverity };
-        const modifiedFormData = { ...currentData, symptomAssessment: modifiedSymptomAssessment };
-        const results = calculateAllResults(modifiedFormData); 
-        return results.qol;
-    }
-
-    function calculatePotentialModalityQoL(currentData, targetModalityId) {
-        const simulatedProfile = JSON.parse(JSON.stringify(currentData.patientProfile));
-        simulatedProfile.modalitySpecificIssue = ''; 
-        simulatedProfile.modalitySpecificIssueOther = '';
-
-        const simulatedData = {
-            ...currentData,
-            patientProfile: simulatedProfile
-        };
-        const results = calculateAllResults(simulatedData, targetModalityId);
-        return {qol: results.qol, ckmTransitionRiskNote: results.ckmTransitionRiskNote};
-    }
-
-
-    // --- STEP 4: RESULTS PAGE ---
-    let currentResults = null;
-
+    // --- RESULTS PAGE LOGIC ---
     function renderResultsPage() {
-        if (!allFormDataStore) {
-            stepContents[4].innerHTML = `<p class="text-center text-red-500">Error: Data not available. Please restart the assessment.</p>`;
-            return;
-        }
-        currentResults = calculateAllResults(allFormDataStore);
-
-        const resultsSuicidalAlertDiv = document.getElementById('results-suicidal-ideation-alert');
-        const phq9SuicidalQuestion = allFormDataStore.phq9.questions.find(q => q.id === 'phq9');
-        if (phq9SuicidalQuestion && phq9SuicidalQuestion.value >= 1) {
-            resultsSuicidalAlertDiv.classList.remove('hidden');
-        } else {
-            resultsSuicidalAlertDiv.classList.add('hidden');
-        }
+        const { qol, phq9 } = calculateScores();
+        document.getElementById('qol-gauge-fill').style.width = `${qol.score}%`;
+        document.getElementById('qol-gauge-fill').className = `h-full transition-all duration-700 ease-out ${qol.colorClass}`;
+        document.getElementById('qol-score-value').textContent = qol.score.toFixed(1);
+        document.getElementById('qol-score-rating').textContent = qol.rating;
         
-        const qolFill = document.getElementById('qol-gauge-fill');
-        qolFill.style.width = `${currentResults.qol.score}%`;
-        qolFill.className = `h-full transition-all duration-700 ease-out ${currentResults.qol.score < 30 ? 'bg-red-500' : currentResults.qol.score < 50 ? 'bg-yellow-400' : 'bg-green-500'}`;
-        document.getElementById('qol-score-value').textContent = currentResults.qol.score.toFixed(1);
-        document.getElementById('qol-score-rating').textContent = currentResults.qol.rating;
-        document.getElementById('qol-score-rating').className = `mt-3 font-semibold ${currentResults.qol.color}`;
-
-        document.getElementById('phq-marker').style.left = `${(currentResults.phq9.score / 27) * 100}%`;
-        document.getElementById('phq-score-value').textContent = currentResults.phq9.score;
-        document.getElementById('phq-score-rating').textContent = currentResults.phq9.rating;
-        document.getElementById('phq-score-rating').className = `mt-3 font-semibold ${currentResults.phq9.color}`;
-
-        document.getElementById('comparison-your-score').textContent = currentResults.comparison.yourScore.toFixed(1);
-        document.getElementById('comparison-your-score-bar').style.width = `${currentResults.comparison.yourScore}%`;
-        const currentModalityDetails = getModalityDetails(allFormDataStore.patientProfile.dialysisModality);
-        document.getElementById('comparison-modality-name').textContent = currentModalityDetails.name;
-        document.getElementById('comparison-avg-score').textContent = currentModalityDetails.avgQoL.toFixed(1);
-        document.getElementById('comparison-avg-score-bar').style.width = `${currentModalityDetails.avgQoL}%`;
-
-        const kfContent = document.getElementById('key-factors-content');
-        let factorsHtml = '<ul class="list-disc pl-5 text-gray-700 space-y-1 text-sm">';
-        let hasFactors = false;
-
-        if (currentResults.significantSymptoms.length > 0) {
-            hasFactors = true;
-            factorsHtml += currentResults.significantSymptoms.map(s => `<li><span class="font-semibold">${s.name}:</span> ${s.severity}</li>`).join('');
-        }
-        if (allFormDataStore.patientProfile.comorbidities.length > 0) {
-            hasFactors = true;
-            factorsHtml += allFormDataStore.patientProfile.comorbidities.map(cId => {
-                const comorbidity = COMORBIDITIES_OPTIONS.find(co => co.id === cId);
-                return `<li><span class="font-semibold">Comorbidity:</span> ${comorbidity ? comorbidity.label : cId}</li>`;
-            }).join('');
-        }
-        if (allFormDataStore.patientProfile.comorbidityOther) {
-             hasFactors = true;
-             factorsHtml += `<li><span class="font-semibold">Other Comorbidity:</span> ${allFormDataStore.patientProfile.comorbidityOther}</li>`;
-        }
-        if (allFormDataStore.patientProfile.modalitySpecificIssue && allFormDataStore.patientProfile.modalitySpecificIssue !== "") {
-            hasFactors = true;
-            let issueText = allFormDataStore.patientProfile.modalitySpecificIssue;
-            if (allFormDataStore.patientProfile.modalitySpecificIssue === "other") {
-                 issueText = allFormDataStore.patientProfile.modalitySpecificIssueOther || "Other specified issue";
-            } else {
-                const modalityIssues = MODALITY_SPECIFIC_ISSUES_OPTIONS[allFormDataStore.patientProfile.dialysisModality];
-                const issueOpt = modalityIssues?.find(opt => opt.value === allFormDataStore.patientProfile.modalitySpecificIssue);
-                if (issueOpt) issueText = issueOpt.label;
-            }
-            factorsHtml += `<li><span class="font-semibold">Modality Issue:</span> ${issueText}</li>`;
-        }
-        if (allFormDataStore.patientProfile.dialysisModality === 'hd-in-center' && allFormDataStore.patientProfile.distanceToFacility) {
-            hasFactors = true;
-            const distOpt = HD_DISTANCE_OPTIONS.find(d => d.value === allFormDataStore.patientProfile.distanceToFacility);
-            factorsHtml += `<li><span class="font-semibold">Distance to HD:</span> ${distOpt ? distOpt.label : 'N/A'}</li>`;
-        }
-        if (allFormDataStore.patientProfile.caregiverSupport) {
-            hasFactors = true;
-            const csOpt = CAREGIVER_SUPPORT_OPTIONS.find(cs => cs.value === allFormDataStore.patientProfile.caregiverSupport);
-            factorsHtml += `<li><span class="font-semibold">Caregiver Support:</span> ${csOpt ? csOpt.label : 'N/A'}</li>`;
-        }
-
-        factorsHtml += '</ul>';
-
-        if (hasFactors) {
-            kfContent.innerHTML = `<p class="mb-2 text-sm text-gray-600">The following factors may be impacting your quality of life:</p>${factorsHtml}`;
-        } else {
-            kfContent.innerHTML = `<p class="text-sm text-gray-600 py-2">No major specific factors (symptoms, comorbidities, modality issues, distance, or support) were identified from your input as significantly impacting your quality of life. Continue working with your healthcare team to maintain your current status.</p>`;
-        }
+        document.getElementById('phq-marker').style.left = `${(phq9.score / 27) * 100}%`;
+        document.getElementById('phq-score-value').textContent = phq9.score;
+        document.getElementById('phq-score-rating').textContent = phq9.rating;
         
-        const smControls = document.getElementById('symptom-improvement-controls');
-        const smNoSymptoms = document.getElementById('symptom-improvement-no-symptoms');
-        const symptomVisualImpactDiv = document.getElementById('symptom-improvement-visual-impact');
-        symptomVisualImpactDiv.classList.add('hidden'); 
-
-        const improvableSymptoms = currentResults.significantSymptoms
-            .filter(s => s.severityValue > 0)
-            .map(s => ({ value: s.id, label: s.name }));
-
-
-        if (improvableSymptoms.length > 0) {
-            smNoSymptoms.classList.add('hidden');
-            smControls.classList.remove('hidden');
-            smControls.innerHTML = `
-                <div>
-                    <label for="symptom-select-improve" class="block text-sm font-medium text-gray-700 mb-1">Select a symptom to improve:</label>
-                    <select id="symptom-select-improve" class="w-full p-2 border border-gray-300 rounded-md bg-white">
-                        <option value="">Select symptom...</option>
-                        ${improvableSymptoms.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}
-                    </select>
-                </div>
-                <div id="improve-to-container" class="hidden">
-                    <label for="improve-to-select" class="block text-sm font-medium text-gray-700 mb-1 mt-3">Improve to:</label>
-                    <select id="improve-to-select" class="w-full p-2 border border-gray-300 rounded-md bg-white"></select>
-                </div>
-                <button id="calculate-improvement-button" class="mt-4 font-medium py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm" disabled>Calculate Potential Impact</button>
-            `;
-            
-            const symptomSelectImprove = document.getElementById('symptom-select-improve');
-            const improveToContainer = document.getElementById('improve-to-container');
-            const improveToSelect = document.getElementById('improve-to-select');
-            const calcImprovementBtn = document.getElementById('calculate-improvement-button');
-
-            symptomSelectImprove.addEventListener('change', function(e) {
-                const selectedSymptomId = e.target.value;
-                symptomVisualImpactDiv.classList.add('hidden'); 
-                if (selectedSymptomId) {
-                    const currentSymptomSeverity = allFormDataStore.symptomAssessment[selectedSymptomId];
-                    improveToSelect.innerHTML = IMPROVE_TO_OPTIONS
-                        .filter(opt => opt.value < currentSymptomSeverity)
-                        .map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
-                    improveToContainer.classList.remove('hidden');
-                    calcImprovementBtn.disabled = improveToSelect.options.length === 0;
-                } else {
-                    improveToContainer.classList.add('hidden');
-                    calcImprovementBtn.disabled = true;
-                }
-            });
-
-            calcImprovementBtn.addEventListener('click', function() {
-                const symptomId = symptomSelectImprove.value;
-                const targetSeverity = parseInt(improveToSelect.value);
-                if (!symptomId || isNaN(targetSeverity)) {
-                    alert("Please select a symptom and a target severity.");
-                    return;
-                }
-                const currentSymptomSeverity = allFormDataStore.symptomAssessment[symptomId];
-                 if (targetSeverity >= currentSymptomSeverity) {
-                    alert("Please select an improvement to a lower severity level than current.");
-                    return;
-                }
-
-                const newQoL = calculatePotentialSymptomQoL(allFormDataStore, symptomId, targetSeverity);
-                const qolFillTemp = document.getElementById('qol-gauge-fill');
-                qolFillTemp.style.width = `${newQoL.score}%`;
-                qolFillTemp.className = `h-full transition-all duration-700 ease-out ${newQoL.score < 30 ? 'bg-red-500' : newQoL.score < 50 ? 'bg-yellow-400' : 'bg-green-500'}`;
-                document.getElementById('qol-score-value').textContent = newQoL.score.toFixed(1);
-                document.getElementById('qol-score-rating').textContent = newQoL.rating;
-                document.getElementById('qol-score-rating').className = `mt-3 font-semibold ${newQoL.color}`;
-                
-                symptomVisualImpactDiv.innerHTML = `
-                    <div class="simulation-highlight">
-                        <p><strong>Simulation for improving ${SYMPTOM_OPTIONS.find(s=>s.id === symptomId)?.name || 'Symptom'}:</strong></p>
-                        <p>Current QoL (with ${SEVERITY_LABELS[currentSymptomSeverity]} severity): <strong class="${currentResults.qol.color}">${currentResults.qol.score.toFixed(1)}</strong></p>
-                        <p>Potential QoL (if improved to ${SEVERITY_LABELS[targetSeverity]}): <strong class="${newQoL.color}">${newQoL.score.toFixed(1)}</strong></p>
-                    </div>`;
-                symptomVisualImpactDiv.classList.remove('hidden');
-                alert(`If your ${SYMPTOM_OPTIONS.find(s=>s.id === symptomId)?.name || 'Symptom'} improved from ${SEVERITY_LABELS[currentSymptomSeverity]} to ${SEVERITY_LABELS[targetSeverity]}, your estimated Quality of Life score could temporarily change from ${currentResults.qol.score.toFixed(1)} to ${newQoL.score.toFixed(1)}. This change is for exploration only and will reset if you navigate away or recalculate.`);
-            });
-
-        } else {
-            smControls.classList.add('hidden');
-            symptomVisualImpactDiv.classList.add('hidden');
-            smNoSymptoms.classList.remove('hidden');
-        }
-
-        const mhAdviceSection = document.getElementById('mental-health-advice-phq-score');
-        const mhAdviceText = document.getElementById('mental-health-advice-text');
-        if (currentResults.phq9.score >= 5) {
-            mhAdviceText.innerHTML = `Based on your PHQ-9 score of <strong>${currentResults.phq9.score} (${currentResults.phq9.rating})</strong>, you may benefit from discussing your mental health with your healthcare provider.`;
-            mhAdviceSection.classList.remove('hidden');
-        } else {
-            mhAdviceSection.classList.add('hidden');
-        }
-
-        const modalityTableBody = document.getElementById('dialysis-modality-comparison-table');
-        const modalitySimulationDisplay = document.getElementById('modality-simulation-result-display');
-        modalityTableBody.innerHTML = '';
-        modalitySimulationDisplay.classList.add('hidden'); 
-
-        DIALYSIS_MODALITY_INFO_DATA.filter(m => m.id !== 'default').forEach(modality => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-gray-50";
-            const isCurrentModality = modality.id === allFormDataStore.patientProfile.dialysisModality;
-            if (isCurrentModality) {
-                tr.classList.add("bg-blue-50", "font-semibold");
-            }
-
-            let challengesText = modality.challenges;
-            if (modality.id === 'conservative' && currentResults.ckmTransitionRiskNote) {
-                 challengesText += `<br><strong class="text-orange-600">${currentResults.ckmTransitionRiskNote}</strong>`;
-            }
-
-
-            tr.innerHTML = `
-                <td class="px-4 py-3 whitespace-nowrap ${isCurrentModality ? 'text-blue-700' : 'text-gray-900'}">${modality.name} ${isCurrentModality ? '<span class="text-xs normal-font text-blue-600">(Your current)</span>' : ''}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-gray-700">${modality.avgQoL}</td>
-                <td class="px-4 py-3 text-gray-700 text-xs">${modality.benefits}</td>
-                <td class="px-4 py-3 text-gray-700 text-xs">${challengesText}</td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                    ${!isCurrentModality ? `<button data-modality-id="${modality.id}" class="simulate-modality-btn text-xs bg-sky-500 hover:bg-sky-600 text-white py-1 px-2 rounded">Simulate Impact</button>` : '<span class="text-xs text-gray-400">-</span>'}
-                </td>
-            `;
-            modalityTableBody.appendChild(tr);
-        });
-        
-        document.querySelectorAll('.simulate-modality-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const targetModalityId = this.dataset.modalityId;
-                const simulationResults = calculatePotentialModalityQoL(allFormDataStore, targetModalityId);
-                const simulatedQoL = simulationResults.qol;
-                const ckmNote = simulationResults.ckmTransitionRiskNote;
-                const targetModalityDetails = getModalityDetails(targetModalityId);
-
-                let simulationHtml = `
-                    <div class="simulation-highlight">
-                        <p><strong>Simulation for changing to ${targetModalityDetails.name}:</strong></p>
-                        <p>Estimated QoL on this modality (based on your current profile): <strong class="${simulatedQoL.color}">${simulatedQoL.score.toFixed(1)}</strong></p>
-                        <p class="text-xs italic mt-1">This is a rough estimate. Actual QoL can vary significantly based on individual adaptation and many other factors.</p>`;
-                if (ckmNote) {
-                    simulationHtml += `<p class="text-xs italic mt-1 text-orange-600">${ckmNote}</p>`;
-                }
-                simulationHtml += `</div>`;
-                modalitySimulationDisplay.innerHTML = simulationHtml;
-                modalitySimulationDisplay.classList.remove('hidden');
-            });
-        });
-        
-        handleTabSwitch('symptom');
-    }
-    
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-
-    function handleTabSwitch(tabId) {
-        if (currentResults && document.getElementById('qol-score-value').textContent !== currentResults.qol.score.toFixed(1)) {
-            const qolFillOrig = document.getElementById('qol-gauge-fill');
-            qolFillOrig.style.width = `${currentResults.qol.score}%`;
-            qolFillOrig.className = `h-full transition-all duration-700 ease-out ${currentResults.qol.score < 30 ? 'bg-red-500' : currentResults.qol.score < 50 ? 'bg-yellow-400' : 'bg-green-500'}`;
-            document.getElementById('qol-score-value').textContent = currentResults.qol.score.toFixed(1);
-            document.getElementById('qol-score-rating').textContent = currentResults.qol.rating;
-            document.getElementById('qol-score-rating').className = `mt-3 font-semibold ${currentResults.qol.color}`;
-        }
-        document.getElementById('symptom-improvement-visual-impact').classList.add('hidden');
-        document.getElementById('modality-simulation-result-display').classList.add('hidden');
-        
-        tabButtons.forEach(button => {
-            button.classList.remove('active');
-            if (button.dataset.tab === tabId) {
-                button.classList.add('active');
-            }
-        });
-        tabPanels.forEach(panel => {
-            panel.classList.add('hidden');
-            if (panel.id === `${tabId}-tab-content`) {
-                panel.classList.remove('hidden');
-            }
-        });
+        const resultsAlert = document.getElementById('results-suicidal-ideation-alert');
+        resultsAlert.innerHTML = document.getElementById('phq9-suicidal-ideation-alert').innerHTML;
+        resultsAlert.classList.toggle('hidden', document.getElementById('phq9-suicidal-ideation-alert').classList.contains('hidden'));
     }
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => handleTabSwitch(button.dataset.tab));
+    function calculateScores() {
+        // Simplified scoring for demonstration; a real model would be more complex
+        let qolScore = 70;
+        const phqTotalScore = phq9Data.questions.reduce((sum, q) => sum + q.value, 0);
+        qolScore -= phqTotalScore * 1.5;
+        
+        const symptomTotalScore = Object.values(symptomAssessmentData).reduce((sum, val) => sum + val, 0);
+        qolScore -= symptomTotalScore * 2;
+        
+        if (patientProfileData.caregiverSupport === 'poor') qolScore -= 5;
+        if (patientProfileData.caregiverSupport === 'good') qolScore += 3;
+        qolScore = Math.max(5, Math.min(99, qolScore));
+
+        let qolRatingKey, qolColorClass;
+        if (qolScore < 30) { qolRatingKey = 'qol_rating_poor'; qolColorClass = 'bg-red-500'; }
+        else if (qolScore < 50) { qolRatingKey = 'qol_rating_fair'; qolColorClass = 'bg-yellow-400'; }
+        else { qolRatingKey = 'qol_rating_good'; qolColorClass = 'bg-green-500'; }
+
+        let phqRatingKey;
+        if (phqTotalScore < 5) phqRatingKey = 'phq_rating_minimal';
+        else if (phqTotalScore < 10) phqRatingKey = 'phq_rating_mild';
+        else if (phqTotalScore < 15) phqRatingKey = 'phq_rating_moderate';
+        else if (phqTotalScore < 20) phqRatingKey = 'phq_rating_moderately_severe';
+        else phqRatingKey = 'phq_rating_severe';
+
+        return {
+            qol: { score: qolScore, rating: getText(qolRatingKey), colorClass: qolColorClass },
+            phq9: { score: phqTotalScore, rating: getText(phqRatingKey) }
+        };
+    }
+
+    // --- APP INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        currentLanguage = 'en'; // Set default language
+        document.getElementById('language-switcher').value = currentLanguage;
+        updateUIText();
+        reinitializeDynamicContent();
+        showStep(1);
     });
-
-    // --- INITIALIZATION ---
-    function initializeApp() {
-        document.title = APP_TITLE;
-        document.getElementById('app-title').textContent = APP_TITLE;
-        
-        populateSelectWithOptions('dialysisModality', DIALYSIS_MODALITIES, false);
-        document.getElementById('dialysisModality').value = patientProfileData.dialysisModality || "";
-
-        populateSelectWithOptions('distanceToFacility', HD_DISTANCE_OPTIONS, false);
-        document.getElementById('distanceToFacility').value = patientProfileData.distanceToFacility || "";
-
-        populateSelectWithOptions('caregiverSupport', CAREGIVER_SUPPORT_OPTIONS, false);
-        document.getElementById('caregiverSupport').value = patientProfileData.caregiverSupport || "";
-
-
-        populateComorbidities();
-        populateModalitySpecificIssues(patientProfileData.dialysisModality); 
-        populateSymptomSliders();
-        populatePhq9Questions();
-
-        if (patientProfileData.dialysisModality === 'hd-in-center') {
-            hdDistanceFacilitySection.classList.add('visible');
-        } else {
-            hdDistanceFacilitySection.classList.remove('visible');
-        }
-
-        showCurrentStep();
-    }
-
-    document.addEventListener('DOMContentLoaded', initializeApp);
 
   </script>
 </body>
