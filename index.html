@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -105,6 +106,26 @@
     .conditional-input.visible {
         opacity: 1;
         max-height: 500px; /* Adjust as needed for content */
+    }
+    .severity-none-bg { background-color: #f3f4f6; } /* bg-gray-100 */
+    .severity-mild-bg { background-color: #f0fdf4; } /* bg-green-50 */
+    .severity-moderate-bg { background-color: #fefce8; } /* bg-yellow-50 */
+    .severity-severe-bg { background-color: #fff7ed; } /* bg-orange-50 */
+
+    .severity-none-text { color: #4b5563; } /* text-gray-600 */
+    .severity-mild-text { color: #16a34a; } /* text-green-600 */
+    .severity-moderate-text { color: #ca8a04; } /* text-yellow-600 */
+    .severity-severe-text { color: #ea580c; } /* text-orange-600 */
+    
+    .critical-alert {
+        background-color: #fee2e2; /* bg-red-100 */
+        border-left-width: 4px;
+        border-color: #ef4444; /* border-red-500 */
+        color: #b91c1c; /* text-red-700 */
+        padding: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.25rem;
     }
   </style>
 </head>
@@ -275,7 +296,8 @@
           <!-- Step 2: Symptom Assessment -->
           <div id="step2-content" class="step-content hidden px-2 sm:px-6 py-4">
             <h2 class="text-2xl font-semibold text-gray-800 mb-2">Step 2: Symptom Assessment</h2>
-            <p class="text-gray-600 mb-6">Please rate the severity of each symptom over the past week.</p>
+            <p class="text-gray-600 mb-1">Please rate the severity of each symptom over the past week.</p>
+            <p class="text-xs text-gray-500 mb-6">This assessment is based on the ESAS-r: Renal (Edmonton Symptom Assessment System – Revised for Renal).</p>
             <form id="symptom-assessment-form" class="space-y-6">
               <!-- Symptom sliders will be populated by JS -->
             </form>
@@ -303,6 +325,23 @@
                   </tbody>
                 </table>
               </div>
+              <div id="phq9-suicidal-ideation-alert" class="critical-alert hidden mt-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium">Critical Alert: Suicidal Thoughts Reported</h3>
+                        <div class="mt-2 text-sm">
+                            <p>You've indicated thoughts of self-harm or that you would be better off dead. It's important to talk to someone about these feelings. Please reach out for help immediately.</p>
+                            <p class="mt-1 font-semibold">National Suicide Prevention Helpline: 1800-121-3667</p>
+                            <p class="mt-1">Contact your doctor or a mental health professional as soon as possible.</p>
+                        </div>
+                    </div>
+                </div>
+              </div>
               <div class="flex justify-between mt-8">
                 <button type="button" id="phq9-back-button" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400">Back</button>
                 <button type="submit" form="mental-health-form" class="font-medium py-2.5 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500">Calculate Results</button>
@@ -314,6 +353,24 @@
           <div id="step4-content" class="step-content hidden px-2 sm:px-6 py-4 space-y-8">
             <h2 class="text-2xl font-semibold text-gray-800 mb-2">Your Quality of Life Assessment Results</h2>
             
+            <div id="results-suicidal-ideation-alert" class="critical-alert hidden">
+                 <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5">
+                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium">Critical Alert: Suicidal Thoughts Reported</h3>
+                        <div class="mt-2 text-sm">
+                            <p>Your responses indicated thoughts of self-harm. It's important to talk to someone about these feelings. Please reach out for help immediately.</p>
+                            <p class="mt-1 font-semibold">National Suicide Prevention Helpline: 1800-121-3667</p>
+                            <p class="mt-1">Contact your doctor or a mental health professional as soon as possible.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- QoL Score Gauge -->
               <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
@@ -485,6 +542,13 @@
     ];
 
     const SEVERITY_LABELS = { 0: 'None', 1: 'Mild', 2: 'Moderate', 3: 'Severe' };
+    const SEVERITY_CLASSES = { 
+        0: { bg: 'severity-none-bg', text: 'severity-none-text font-normal' }, 
+        1: { bg: 'severity-mild-bg', text: 'severity-mild-text font-medium' }, 
+        2: { bg: 'severity-moderate-bg', text: 'severity-moderate-text font-medium' }, 
+        3: { bg: 'severity-severe-bg', text: 'severity-severe-text font-medium' } 
+    };
+
 
     const PHQ9_QUESTIONS = [
       { id: 'phq1', text: 'Little interest or pleasure in doing things' },
@@ -800,13 +864,31 @@
     });
     
     // --- STEP 2: SYMPTOM ASSESSMENT ---
+    function updateSymptomSliderVisuals(sliderId, value) {
+        const valueLabel = document.getElementById(`${sliderId}-value-label`);
+        const sliderContainer = document.getElementById(sliderId).closest('.symptom-slider-container');
+        
+        // Reset classes
+        Object.values(SEVERITY_CLASSES).forEach(cls => {
+            valueLabel.classList.remove(cls.text);
+            sliderContainer.classList.remove(cls.bg);
+        });
+
+        // Apply new classes
+        valueLabel.textContent = SEVERITY_LABELS[value];
+        valueLabel.classList.add(SEVERITY_CLASSES[value].text);
+        sliderContainer.classList.add(SEVERITY_CLASSES[value].bg);
+    }
+
     function populateSymptomSliders() {
         const formEl = document.getElementById('symptom-assessment-form');
         formEl.innerHTML = ''; // Clear previous
         SYMPTOM_OPTIONS.forEach(symptom => {
             const symptomValue = symptomAssessmentData[symptom.id] || 0;
             const div = document.createElement('div');
-            div.className = "bg-slate-50 p-4 rounded-lg shadow-sm border border-slate-200";
+            // Add a class for easier targeting
+            div.className = "symptom-slider-container p-4 rounded-lg shadow-sm border border-slate-200 transition-colors duration-200";
+            
             div.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
                     <label class="block text-gray-700 font-medium">
@@ -816,7 +898,7 @@
                            <span class="tooltip-text">${symptom.description}</span>
                         </span>
                     </label>
-                    <span id="${symptom.id}-value-label" class="text-blue-600 font-medium min-w-[70px] text-right">
+                    <span id="${symptom.id}-value-label" class="min-w-[70px] text-right">
                         ${SEVERITY_LABELS[symptomValue]}
                     </span>
                 </div>
@@ -829,10 +911,13 @@
                 </div>
             `;
             formEl.appendChild(div);
+            // Initial visual setup
+            updateSymptomSliderVisuals(symptom.id, symptomValue);
+
             document.getElementById(symptom.id).addEventListener('input', function(e) {
                 const value = parseInt(e.target.value);
                 symptomAssessmentData[symptom.id] = value;
-                document.getElementById(`${symptom.id}-value-label`).textContent = SEVERITY_LABELS[value];
+                updateSymptomSliderVisuals(symptom.id, value);
             });
         });
     }
@@ -847,6 +932,16 @@
     });
 
     // --- STEP 3: MENTAL HEALTH (PHQ-9) ---
+    function checkAndDisplaySuicidalIdeationAlert() {
+        const phq9SuicidalQuestion = phq9Data.questions.find(q => q.id === 'phq9');
+        const alertDiv = document.getElementById('phq9-suicidal-ideation-alert');
+        if (phq9SuicidalQuestion && phq9SuicidalQuestion.value >= 1) {
+            alertDiv.classList.remove('hidden');
+        } else {
+            alertDiv.classList.add('hidden');
+        }
+    }
+
     function populatePhq9Questions() {
         const tbody = document.getElementById('phq9-questions-tbody');
         tbody.innerHTML = ''; // Clear previous
@@ -888,9 +983,13 @@
                     if (qIndex > -1) {
                         phq9Data.questions[qIndex].value = parseInt(e.target.value);
                     }
+                    if (question.id === 'phq9') { // Specifically check for the suicidal ideation question
+                        checkAndDisplaySuicidalIdeationAlert();
+                    }
                 });
             });
         });
+        checkAndDisplaySuicidalIdeationAlert(); // Initial check
     }
      document.getElementById('mental-health-form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -926,7 +1025,7 @@
         const significantSymptomsList = [];
         Object.entries(formData.symptomAssessment).forEach(([symptomId, severity]) => {
             symptomBurden += severity;
-            if (severity >= 2) { // Moderate or Severe
+            if (severity >= 1) { // Mild, Moderate or Severe for listing
                 significantSymptomsList.push({
                     id: symptomId,
                     name: SYMPTOM_OPTIONS.find(s => s.id === symptomId)?.name || symptomId,
@@ -1060,6 +1159,15 @@
             return;
         }
         currentResults = calculateAllResults(allFormDataStore);
+
+        // Suicidal ideation alert on results page
+        const resultsSuicidalAlertDiv = document.getElementById('results-suicidal-ideation-alert');
+        const phq9SuicidalQuestion = allFormDataStore.phq9.questions.find(q => q.id === 'phq9');
+        if (phq9SuicidalQuestion && phq9SuicidalQuestion.value >= 1) {
+            resultsSuicidalAlertDiv.classList.remove('hidden');
+        } else {
+            resultsSuicidalAlertDiv.classList.add('hidden');
+        }
         
         // QoL Score Gauge
         const qolFill = document.getElementById('qol-gauge-fill');
@@ -1141,9 +1249,10 @@
         const symptomVisualImpactDiv = document.getElementById('symptom-improvement-visual-impact');
         symptomVisualImpactDiv.classList.add('hidden'); 
 
-        const improvableSymptoms = SYMPTOM_OPTIONS
-            .filter(s => currentResults.significantSymptoms.some(ss => ss.id === s.id && ss.severityValue > 0))
+        const improvableSymptoms = currentResults.significantSymptoms
+            .filter(s => s.severityValue > 0) // Only symptoms not 'None'
             .map(s => ({ value: s.id, label: s.name }));
+
 
         if (improvableSymptoms.length > 0) {
             smNoSymptoms.classList.add('hidden');
@@ -1225,7 +1334,7 @@
         // Exploration Tabs - Mental Health
         const mhAdviceSection = document.getElementById('mental-health-advice-phq-score');
         const mhAdviceText = document.getElementById('mental-health-advice-text');
-        if (currentResults.phq9.score >= 5) {
+        if (currentResults.phq9.score >= 5) { // Show advice if score is 5 or more (mild or greater)
             mhAdviceText.innerHTML = `Based on your PHQ-9 score of <strong>${currentResults.phq9.score} (${currentResults.phq9.rating})</strong>, you may benefit from discussing your mental health with your healthcare provider.`;
             mhAdviceSection.classList.remove('hidden');
         } else {
