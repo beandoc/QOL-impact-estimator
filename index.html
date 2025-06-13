@@ -666,7 +666,7 @@
     };
     let allFormDataStore = null; // To store combined data for results page
 
-    // --- DOM ELEMENT REFERENCES ( 주요 요소들만 ) ---
+    // --- DOM ELEMENT REFERENCES ( Major elements ) ---
     const stepContents = {
         1: document.getElementById('step1-content'),
         2: document.getElementById('step2-content'),
@@ -683,7 +683,7 @@
             const indicator = document.getElementById(`step-indicator-${i}`);
             const label = document.getElementById(`step-label-${i}`);
             indicator.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300 ';
-            label.className = 'text-center w-1/4 px-1 ';
+            label.className = 'text-center w-1/4 px-1 text-xs text-gray-500';
 
             if (i < currentStep) {
                 indicator.classList.add('bg-green-500', 'text-white');
@@ -867,25 +867,25 @@
         const valueLabel = document.getElementById(`${sliderId}-value-label`);
         const sliderContainer = document.getElementById(sliderId).closest('.symptom-slider-container');
         
-        // Reset classes
         Object.values(SEVERITY_CLASSES).forEach(cls => {
             valueLabel.classList.remove(cls.text);
             sliderContainer.classList.remove(cls.bg);
         });
 
-        // Apply new classes
         valueLabel.textContent = SEVERITY_LABELS[value];
         valueLabel.classList.add(SEVERITY_CLASSES[value].text);
         sliderContainer.classList.add(SEVERITY_CLASSES[value].bg);
     }
 
+    // THIS FUNCTION POPULATES ALL SYMPTOM SLIDERS
     function populateSymptomSliders() {
         const formEl = document.getElementById('symptom-assessment-form');
-        formEl.innerHTML = ''; // Clear previous
+        formEl.innerHTML = ''; // Clear previous content to prevent duplicates
+        
+        // Loop through each symptom defined in the constants
         SYMPTOM_OPTIONS.forEach(symptom => {
             const symptomValue = symptomAssessmentData[symptom.id] || 0;
             const div = document.createElement('div');
-            // Add a class for easier targeting
             div.className = "symptom-slider-container p-4 rounded-lg shadow-sm border border-slate-200 transition-colors duration-200";
             
             div.innerHTML = `
@@ -909,10 +909,10 @@
                     <span>${SEVERITY_LABELS[3]}</span>
                 </div>
             `;
-            formEl.appendChild(div);
-            // Initial visual setup
+            formEl.appendChild(div); // Add the newly created slider to the form
+            
+            // Set initial colors and add event listener
             updateSymptomSliderVisuals(symptom.id, symptomValue);
-
             document.getElementById(symptom.id).addEventListener('input', function(e) {
                 const value = parseInt(e.target.value);
                 symptomAssessmentData[symptom.id] = value;
@@ -920,6 +920,7 @@
             });
         });
     }
+    
     document.getElementById('symptom-assessment-form').addEventListener('submit', function(e) {
         e.preventDefault();
         currentStep = STEPS.MentalHealth;
@@ -941,9 +942,10 @@
         }
     }
 
+    // THIS FUNCTION POPULATES ALL PHQ-9 QUESTIONS
     function populatePhq9Questions() {
         const tbody = document.getElementById('phq9-questions-tbody');
-        tbody.innerHTML = ''; // Clear previous
+        tbody.innerHTML = ''; // Clear previous content to prevent duplicates
         
         const aOptionsHeaderRow = document.querySelector('#mental-health-form table thead tr');
         while (aOptionsHeaderRow.children.length > 1) {
@@ -957,6 +959,7 @@
             aOptionsHeaderRow.appendChild(th);
         });
 
+        // Loop through each question defined in the constants
         PHQ9_QUESTIONS.forEach((question, index) => {
             const tr = document.createElement('tr');
             tr.className = "bg-white border-b hover:bg-gray-50";
@@ -974,15 +977,16 @@
                     </td>`;
             });
             tr.innerHTML = tdProblem + tdRadios;
-            tbody.appendChild(tr);
+            tbody.appendChild(tr); // Add the newly created row to the table body
 
+            // Add event listener for the new radio buttons
             PHQ9_ANSWER_OPTIONS.forEach(opt => {
                 document.getElementById(`${question.id}-${opt.value}`).addEventListener('change', function(e) {
                     const qIndex = phq9Data.questions.findIndex(q => q.id === question.id);
                     if (qIndex > -1) {
                         phq9Data.questions[qIndex].value = parseInt(e.target.value);
                     }
-                    if (question.id === 'phq9') { // Specifically check for the suicidal ideation question
+                    if (question.id === 'phq9') {
                         checkAndDisplaySuicidalIdeationAlert();
                     }
                 });
@@ -990,10 +994,11 @@
         });
         checkAndDisplaySuicidalIdeationAlert(); // Initial check
     }
+
      document.getElementById('mental-health-form').addEventListener('submit', function(e) {
         e.preventDefault();
         allFormDataStore = {
-            patientProfile: JSON.parse(JSON.stringify(patientProfileData)), // Deep copy
+            patientProfile: JSON.parse(JSON.stringify(patientProfileData)),
             symptomAssessment: JSON.parse(JSON.stringify(symptomAssessmentData)),
             phq9: JSON.parse(JSON.stringify(phq9Data)),
         };
@@ -1071,9 +1076,8 @@
         let ckmTransitionRiskNote = '';
         if (currentModalityId === 'conservative') {
             if (formData.patientProfile.age > 75) ckmAgeBoost = 3;
-             // Check if original modality (from stored data) was dialysis
             if (allFormDataStore && (allFormDataStore.patientProfile.dialysisModality === 'hd-in-center' || allFormDataStore.patientProfile.dialysisModality === 'pd')) {
-                 if (!targetModalityId || targetModalityId === 'conservative') { // If CKM is current or being simulated from dialysis
+                 if (!targetModalityId || targetModalityId === 'conservative') {
                     ckmTransitionRiskNote = "Switching from active dialysis to Conservative Kidney Management can be a significant decision with potential risks and should be thoroughly discussed with your healthcare team.";
                  }
             }
@@ -1095,16 +1099,14 @@
 
         let qolScoreVal = baseScore + symptomImpactVal + phqImpactVal + ageImpactVal + comorbidityImpact + modalitySpecificIssueImpact + distanceImpact + caregiverImpact + ckmAgeBoost;
         
-        // Specific logic for simulated modality QoL boosts
-        if (targetModalityId) { // Only apply these boosts during simulation
+        if (targetModalityId) {
             if (targetModalityId === 'pd' && formData.patientProfile.caregiverSupport === 'good' && formData.patientProfile.distanceToFacility === 'very-far') {
-                qolScoreVal += 4; // PD boost
+                qolScoreVal += 4;
             }
             if (targetModalityId === 'hd-in-center' && formData.patientProfile.distanceToFacility === 'close' && (!formData.patientProfile.modalitySpecificIssue || formData.patientProfile.modalitySpecificIssue === "")) {
-                qolScoreVal += 2.5; // HD boost for convenience if no major issues
+                qolScoreVal += 2.5;
             }
         }
-
 
         qolScoreVal = Math.max(5, Math.min(99, qolScoreVal));
         qolScoreVal = Math.round(qolScoreVal * 10) / 10;
@@ -1135,8 +1137,6 @@
 
     function calculatePotentialModalityQoL(currentData, targetModalityId) {
         const simulatedProfile = JSON.parse(JSON.stringify(currentData.patientProfile));
-        // For simulation, we assume modality-specific issues of the *target* modality would be unknown/none initially.
-        // Or, we could carry them over IF they are generic enough - for now, clear them for a 'clean slate' simulation.
         simulatedProfile.modalitySpecificIssue = ''; 
         simulatedProfile.modalitySpecificIssueOther = '';
 
@@ -1150,7 +1150,7 @@
 
 
     // --- STEP 4: RESULTS PAGE ---
-    let currentResults = null; // Store calculated results
+    let currentResults = null;
 
     function renderResultsPage() {
         if (!allFormDataStore) {
@@ -1159,7 +1159,6 @@
         }
         currentResults = calculateAllResults(allFormDataStore);
 
-        // Suicidal ideation alert on results page
         const resultsSuicidalAlertDiv = document.getElementById('results-suicidal-ideation-alert');
         const phq9SuicidalQuestion = allFormDataStore.phq9.questions.find(q => q.id === 'phq9');
         if (phq9SuicidalQuestion && phq9SuicidalQuestion.value >= 1) {
@@ -1168,7 +1167,6 @@
             resultsSuicidalAlertDiv.classList.add('hidden');
         }
         
-        // QoL Score Gauge
         const qolFill = document.getElementById('qol-gauge-fill');
         qolFill.style.width = `${currentResults.qol.score}%`;
         qolFill.className = `h-full transition-all duration-700 ease-out ${currentResults.qol.score < 30 ? 'bg-red-500' : currentResults.qol.score < 50 ? 'bg-yellow-400' : 'bg-green-500'}`;
@@ -1176,13 +1174,11 @@
         document.getElementById('qol-score-rating').textContent = currentResults.qol.rating;
         document.getElementById('qol-score-rating').className = `mt-3 font-semibold ${currentResults.qol.color}`;
 
-        // PHQ-9 Score Display
         document.getElementById('phq-marker').style.left = `${(currentResults.phq9.score / 27) * 100}%`;
         document.getElementById('phq-score-value').textContent = currentResults.phq9.score;
         document.getElementById('phq-score-rating').textContent = currentResults.phq9.rating;
         document.getElementById('phq-score-rating').className = `mt-3 font-semibold ${currentResults.phq9.color}`;
 
-        // Score Comparison
         document.getElementById('comparison-your-score').textContent = currentResults.comparison.yourScore.toFixed(1);
         document.getElementById('comparison-your-score-bar').style.width = `${currentResults.comparison.yourScore}%`;
         const currentModalityDetails = getModalityDetails(allFormDataStore.patientProfile.dialysisModality);
@@ -1190,8 +1186,6 @@
         document.getElementById('comparison-avg-score').textContent = currentModalityDetails.avgQoL.toFixed(1);
         document.getElementById('comparison-avg-score-bar').style.width = `${currentModalityDetails.avgQoL}%`;
 
-
-        // Key Factors
         const kfContent = document.getElementById('key-factors-content');
         let factorsHtml = '<ul class="list-disc pl-5 text-gray-700 space-y-1 text-sm">';
         let hasFactors = false;
@@ -1242,14 +1236,13 @@
             kfContent.innerHTML = `<p class="text-sm text-gray-600 py-2">No major specific factors (symptoms, comorbidities, modality issues, distance, or support) were identified from your input as significantly impacting your quality of life. Continue working with your healthcare team to maintain your current status.</p>`;
         }
         
-        // Exploration Tabs - Symptom Management (no changes to this part's rendering logic)
         const smControls = document.getElementById('symptom-improvement-controls');
         const smNoSymptoms = document.getElementById('symptom-improvement-no-symptoms');
         const symptomVisualImpactDiv = document.getElementById('symptom-improvement-visual-impact');
         symptomVisualImpactDiv.classList.add('hidden'); 
 
         const improvableSymptoms = currentResults.significantSymptoms
-            .filter(s => s.severityValue > 0) // Only symptoms not 'None'
+            .filter(s => s.severityValue > 0)
             .map(s => ({ value: s.id, label: s.name }));
 
 
@@ -1329,18 +1322,15 @@
             smNoSymptoms.classList.remove('hidden');
         }
 
-
-        // Exploration Tabs - Mental Health
         const mhAdviceSection = document.getElementById('mental-health-advice-phq-score');
         const mhAdviceText = document.getElementById('mental-health-advice-text');
-        if (currentResults.phq9.score >= 5) { // Show advice if score is 5 or more (mild or greater)
+        if (currentResults.phq9.score >= 5) {
             mhAdviceText.innerHTML = `Based on your PHQ-9 score of <strong>${currentResults.phq9.score} (${currentResults.phq9.rating})</strong>, you may benefit from discussing your mental health with your healthcare provider.`;
             mhAdviceSection.classList.remove('hidden');
         } else {
             mhAdviceSection.classList.add('hidden');
         }
 
-        // Exploration Tabs - Dialysis Modality
         const modalityTableBody = document.getElementById('dialysis-modality-comparison-table');
         const modalitySimulationDisplay = document.getElementById('modality-simulation-result-display');
         modalityTableBody.innerHTML = '';
@@ -1378,7 +1368,6 @@
                 const simulationResults = calculatePotentialModalityQoL(allFormDataStore, targetModalityId);
                 const simulatedQoL = simulationResults.qol;
                 const ckmNote = simulationResults.ckmTransitionRiskNote;
-
                 const targetModalityDetails = getModalityDetails(targetModalityId);
 
                 let simulationHtml = `
@@ -1395,11 +1384,9 @@
             });
         });
         
-        // Ensure first tab is active by default
         handleTabSwitch('symptom');
     }
     
-    // Tab switching logic for results page
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabPanels = document.querySelectorAll('.tab-panel');
 
@@ -1438,7 +1425,6 @@
         document.title = APP_TITLE;
         document.getElementById('app-title').textContent = APP_TITLE;
         
-        // Populate Step 1 selects
         populateSelectWithOptions('dialysisModality', DIALYSIS_MODALITIES, false);
         document.getElementById('dialysisModality').value = patientProfileData.dialysisModality || "";
 
@@ -1454,13 +1440,11 @@
         populateSymptomSliders();
         populatePhq9Questions();
 
-        // Initial state of conditional HD distance input
         if (patientProfileData.dialysisModality === 'hd-in-center') {
             hdDistanceFacilitySection.classList.add('visible');
         } else {
             hdDistanceFacilitySection.classList.remove('visible');
         }
-
 
         showCurrentStep();
     }
